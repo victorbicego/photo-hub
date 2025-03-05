@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: ${APPLICATION_NAME}
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+
+server:
+  port: ${PORT:8080}
+
+face:
+  service:
+    url: ${FACE_SERVICE_URL}
+
+storage:
+  location: uploads
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
