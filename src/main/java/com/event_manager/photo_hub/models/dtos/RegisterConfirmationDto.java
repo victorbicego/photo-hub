@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterConfirmationDto {
 
-  @NotNull @Email private String username;
+    @NotNull
+    @Email
+    private String username;
 
-  @NotNull
-  @Size(min = 10, max = 10)
-  private String code;
+    @NotNull
+    @Size(min = 10, max = 10)
+    private String code;
 }

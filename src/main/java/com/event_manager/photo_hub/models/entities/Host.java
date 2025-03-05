@@ -1,19 +1,25 @@
 package com.event_manager.photo_hub.models.entities;
 
-import com.event_manager.photo_hub.models.Auditable;
-import com.event_manager.photo_hub.models.Role;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.event_manager.photo_hub.models.Auditable;
+import com.event_manager.photo_hub.models.Role;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -25,9 +31,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 public class Host extends Auditable implements UserDetails, Serializable {
 
+    private static final Role ROLE = Role.HOST;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String username;
     private String password;
-    private final Role role = Role.HOST;
     private boolean enabled;
 
     @Override

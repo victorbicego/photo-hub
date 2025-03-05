@@ -7,5 +7,5 @@ import com.event_manager.photo_hub.models.dtos.LoginResponseDto;
 
 public interface AuthenticationService {
 
-  LoginResponseDto authenticate(LoginRequestDto loginRequestDto) throws BadRequestException;
+    LoginResponseDto authenticate(LoginRequestDto loginRequestDto) throws BadRequestException;
 }

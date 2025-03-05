@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginRequestDto {
 
-  @NotNull @Email private String username;
+    @NotNull
+    @Email
+    private String username;
 
-  @NotNull
-  @Size(min = 8)
-  private String password;
+    @NotNull
+    @Size(min = 8)
+    private String password;
 }

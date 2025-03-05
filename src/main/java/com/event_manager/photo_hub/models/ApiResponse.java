@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 @Data
@@ -12,11 +13,12 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ApiResponse<T> {
 
-  @NotNull private HttpStatus status;
+    @NotNull
+    private HttpStatus status;
 
-  private T data;
+    private T data;
 
-  @NotNull
-  @Size(min = 1)
-  private String message;
+    @NotNull
+    @Size(min = 1)
+    private String message;
 }
