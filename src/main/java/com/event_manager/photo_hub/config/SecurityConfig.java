@@ -29,12 +29,10 @@ public class SecurityConfig {
                     .requestMatchers(
                         "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**")
                     .permitAll()
-                    .requestMatchers("/api/v1/admin/**")
-                    .hasAuthority("ADMIN")
-                    .requestMatchers("/api/v1/employee/**")
-                    .hasAnyAuthority("ADMIN", "EMPLOYEE")
-                    .requestMatchers("/api/v1/consumer/**")
-                    .hasAuthority("CONSUMER")
+                    .requestMatchers("/api/v1/host/**")
+                    .hasAuthority("HOST")
+                    .requestMatchers("/api/v1/guest/**")
+                    .hasAnyAuthority("HOST", "GUEST")
                     .anyRequest()
                     .authenticated())
         .sessionManagement(

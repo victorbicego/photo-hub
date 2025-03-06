@@ -75,8 +75,6 @@ public class EmailServiceImpl implements EmailService {
   }
 
   private void sendEmail(String email, String subject, String content) throws MessagingException {
-    System.out.println("-------------------");
-    System.out.println(email);
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
     helper.setTo(email);

@@ -1,5 +1,6 @@
 package com.event_manager.photo_hub.services;
 
+import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.dtos.CreateGuestDto;
 import com.event_manager.photo_hub.models.dtos.CreateHostDto;
 import com.event_manager.photo_hub.models.dtos.GuestDto;
@@ -10,5 +11,5 @@ public interface RegisterService {
 
     HostDto registerHost(CreateHostDto createHostDto) throws MessagingException;
 
-    GuestDto registerGuest(CreateGuestDto createGuestDto) throws MessagingException;
+    GuestDto registerGuest(CreateGuestDto createGuestDto) throws MessagingException, NotFoundException;
 }
