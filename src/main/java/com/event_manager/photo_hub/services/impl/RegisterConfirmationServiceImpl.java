@@ -1,14 +1,5 @@
 package com.event_manager.photo_hub.services.impl;
 
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
-import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
-
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
 import com.event_manager.photo_hub.exceptions.BadRequestException;
 import com.event_manager.photo_hub.exceptions.ExpiredRegistrationCodeException;
 import com.event_manager.photo_hub.exceptions.InvalidRegistrationCodeException;
@@ -24,6 +15,12 @@ import com.event_manager.photo_hub.services.RegisterConfirmationService;
 import com.event_manager.photo_hub.services.UserService;
 import com.event_manager.photo_hub.services.utils.RoleUtil;
 import com.event_manager.photo_hub.services_crud.RegisterConfirmationCrudService;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

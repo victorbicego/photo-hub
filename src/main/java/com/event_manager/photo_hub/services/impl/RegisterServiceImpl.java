@@ -1,13 +1,6 @@
 package com.event_manager.photo_hub.services.impl;
 
 import static com.event_manager.photo_hub.services.utils.CodeGeneratorUtil.generateRandomCode;
-import jakarta.mail.MessagingException;
-import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import com.event_manager.photo_hub.models.dtos.CreateGuestDto;
 import com.event_manager.photo_hub.models.dtos.CreateHostDto;
@@ -23,6 +16,11 @@ import com.event_manager.photo_hub.services.RegisterService;
 import com.event_manager.photo_hub.services_crud.GuestCrudService;
 import com.event_manager.photo_hub.services_crud.HostCrudService;
 import com.event_manager.photo_hub.services_crud.RegisterConfirmationCrudService;
+import jakarta.mail.MessagingException;
+import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +40,11 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public HostDto registerHost(CreateHostDto createHostDto) throws MessagingException {
         Host mappedHost = mapToEntity(createHostDto);
+    System.out.println("mapped");
+    System.out.println(mappedHost.getUsername());
         Host savedHost = hostCrudService.save(mappedHost);
+    System.out.println("saved");
+    System.out.println(savedHost.getUsername());
         sendRegisterConfirmation(savedHost.getUsername());
         return hostMapper.toDto(savedHost);
     }
@@ -71,6 +73,8 @@ public class RegisterServiceImpl implements RegisterService {
 
     private void sendRegisterConfirmation(String username) throws MessagingException {
         RegisterConfirmation confirmation = createRegisterConfirmation(username);
+    System.out.println("-------------------");
+    System.out.println(confirmation.getUsername());
         emailService.sendConfirmationCode(confirmation.getUsername(), confirmation.getCode());
     }
 

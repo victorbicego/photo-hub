@@ -1,9 +1,8 @@
 package com.event_manager.photo_hub.services_crud;
 
-import java.util.Optional;
-
 import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.entities.ResetPasswordRequest;
+import java.util.Optional;
 
 public interface ResetPasswordRequestCrudService {
 

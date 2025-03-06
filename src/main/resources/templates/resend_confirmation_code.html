@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Novo Código de Confirmação</title>
+    <style>
+        .code {
+            font-size: 22px;
+            font-weight: bold;
+            color: #28a745;
+            margin: 15px 0;
+            text-align: center;
+            padding: 10px;
+            border: 2px dashed #28a745;
+            border-radius: 5px;
+            background-color: #e9ffe9;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <p>Olá!</p>
+    <p>Entendemos que você precisa de um novo código de confirmação. Aqui está:</p>
+    <div class="code" th:text="${code}">CODE</div>
+    <p>Use este código para ativar sua conta e aproveitar todos os benefícios que oferecemos.</p>
+    <p>Se tiver alguma dúvida, estamos à disposição.</p>
+</div>
+</body>
+</html>

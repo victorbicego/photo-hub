@@ -5,15 +5,15 @@ import com.event_manager.photo_hub.models.entities.Host;
 
 public interface HostCrudService {
 
-    Host findById(Long id) throws NotFoundException;
+  Host findById(Long id) throws NotFoundException;
 
-    Host findByUsername(String username) throws NotFoundException;
+  Host findByUsername(String username) throws NotFoundException;
 
-    Host save(Host host);
+  Host save(Host host);
 
-    Host updatePassword(Long id, String encodedPassword) throws NotFoundException;
+  Host updatePassword(Long id, String encodedPassword) throws NotFoundException;
 
-    void delete(Long id) throws NotFoundException;
+  void delete(Long id) throws NotFoundException;
 
-    boolean existsById(Long id);
+  boolean existsById(Long id);
 }

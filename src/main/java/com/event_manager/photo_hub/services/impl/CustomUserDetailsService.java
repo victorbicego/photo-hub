@@ -16,18 +16,18 @@ import com.event_manager.photo_hub.repositories.BaseUserRepository;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final List<BaseUserRepository<? extends UserDetails>> userRepositories;
+  private final List<BaseUserRepository<? extends UserDetails>> userRepositories;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepositories.stream()
-                .map(repo -> repo.findByUsername(username))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst()
-                .orElseThrow(
-                        () ->
-                                new UsernameNotFoundException(
-                                        String.format("User with username '%s' not found.", username)));
-    }
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepositories.stream()
+        .map(repo -> repo.findByUsername(username))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new UsernameNotFoundException(
+                    String.format("User with username '%s' not found.", username)));
+  }
 }

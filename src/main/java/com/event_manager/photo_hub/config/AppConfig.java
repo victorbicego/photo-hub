@@ -1,9 +1,9 @@
 package com.event_manager.photo_hub.config;
 
-import lombok.RequiredArgsConstructor;
-
+import com.event_manager.photo_hub.repositories.BaseUserRepository;
+import com.event_manager.photo_hub.services.impl.CustomUserDetailsService;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.event_manager.photo_hub.repositories.BaseUserRepository;
-import com.event_manager.photo_hub.services.impl.CustomUserDetailsService;
 
 @Configuration
 @RequiredArgsConstructor

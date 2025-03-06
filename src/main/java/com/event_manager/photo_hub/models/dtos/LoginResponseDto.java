@@ -15,14 +15,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 public class LoginResponseDto {
 
-    @NotNull
-    @JsonIgnore
-    private Cookie cookie;
+  @NotNull @JsonIgnore private Cookie cookie;
 
-    @NotNull
-    @Email
-    private String username;
+  @NotNull @Email private String username;
 
-    @NotNull
-    private Role role;
+  @NotNull private Role role;
 }

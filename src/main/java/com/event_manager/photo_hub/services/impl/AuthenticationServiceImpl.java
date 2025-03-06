@@ -20,22 +20,23 @@ import com.event_manager.photo_hub.services.utils.RoleUtil;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService customUserDetailsService;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+  private final CustomUserDetailsService customUserDetailsService;
 
-    @Override
-    public LoginResponseDto authenticate(LoginRequestDto loginRequestDto) throws BadRequestException {
-        authenticateCredentials(loginRequestDto);
-        UserDetails foundUser = customUserDetailsService.loadUserByUsername(loginRequestDto.getUsername());
-        Cookie cookie = jwtService.createCookie(foundUser);
-        Role role = RoleUtil.determineRole(foundUser);
-        return new LoginResponseDto(cookie, foundUser.getUsername(), role);
-    }
+  @Override
+  public LoginResponseDto authenticate(LoginRequestDto loginRequestDto) throws BadRequestException {
+    authenticateCredentials(loginRequestDto);
+    UserDetails foundUser =
+        customUserDetailsService.loadUserByUsername(loginRequestDto.getUsername());
+    Cookie cookie = jwtService.createCookie(foundUser);
+    Role role = RoleUtil.determineRole(foundUser);
+    return new LoginResponseDto(cookie, foundUser.getUsername(), role);
+  }
 
-    private void authenticateCredentials(LoginRequestDto loginRequestDto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequestDto.getUsername(), loginRequestDto.getPassword()));
-    }
+  private void authenticateCredentials(LoginRequestDto loginRequestDto) {
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+  }
 }

@@ -27,24 +27,24 @@ import com.event_manager.photo_hub.services.ResetPasswordRequestService;
 @Validated
 public class ResetPasswordRequestController {
 
-    private final ResetPasswordRequestService resetPasswordRequestService;
+  private final ResetPasswordRequestService resetPasswordRequestService;
 
-    @PostMapping("/request")
-    public ResponseEntity<ApiResponse<Void>> sendResetPasswordEmail(
-            @Valid @RequestBody EmailDto emailDto) throws MessagingException {
+  @PostMapping("/request")
+  public ResponseEntity<ApiResponse<Void>> sendResetPasswordEmail(
+      @Valid @RequestBody EmailDto emailDto) throws MessagingException {
 
-        resetPasswordRequestService.sendResetPasswordEmail(emailDto);
+    resetPasswordRequestService.sendResetPasswordEmail(emailDto);
 
-        return buildResponse(HttpStatus.OK, null, "Reset password code sent successfully.");
-    }
+    return buildResponse(HttpStatus.OK, null, "Reset password code sent successfully.");
+  }
 
-    @PostMapping("/confirm")
-    public ResponseEntity<ApiResponse<Void>> confirmNewPassword(
-            @Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto)
-            throws NotFoundException, ExpiredRegistrationCodeException, BadRequestException {
+  @PostMapping("/confirm")
+  public ResponseEntity<ApiResponse<Void>> confirmNewPassword(
+      @Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto)
+      throws NotFoundException, ExpiredRegistrationCodeException, BadRequestException {
 
-        resetPasswordRequestService.confirmNewPassword(resetPasswordRequestDto);
+    resetPasswordRequestService.confirmNewPassword(resetPasswordRequestDto);
 
-        return buildResponse(HttpStatus.OK, null, "Password reset successfully.");
-    }
+    return buildResponse(HttpStatus.OK, null, "Password reset successfully.");
+  }
 }

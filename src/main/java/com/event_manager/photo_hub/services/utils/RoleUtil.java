@@ -7,12 +7,12 @@ import com.event_manager.photo_hub.models.Role;
 
 public class RoleUtil {
 
-    public static Role determineRole(UserDetails userDetails) throws BadRequestException {
-        String roleString = userDetails.getAuthorities().stream()
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("Invalid user role."))
-                .getAuthority();
-        return Role.valueOf(roleString);
-    }
-
+  public static Role determineRole(UserDetails userDetails) throws BadRequestException {
+    String roleString =
+        userDetails.getAuthorities().stream()
+            .findFirst()
+            .orElseThrow(() -> new BadRequestException("Invalid user role."))
+            .getAuthority();
+    return Role.valueOf(roleString);
+  }
 }

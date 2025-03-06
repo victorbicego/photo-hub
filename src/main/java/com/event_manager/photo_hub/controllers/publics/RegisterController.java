@@ -26,23 +26,23 @@ import com.event_manager.photo_hub.services.RegisterService;
 @Validated
 public class RegisterController {
 
-    private final RegisterService registerService;
+  private final RegisterService registerService;
 
-    @PostMapping("/hots")
-    public ResponseEntity<ApiResponse<HostDto>> registerHost(
-            @Valid @RequestBody CreateHostDto createHostDto) throws MessagingException {
+  @PostMapping("/host")
+  public ResponseEntity<ApiResponse<HostDto>> registerHost(
+      @Valid @RequestBody CreateHostDto createHostDto) throws MessagingException {
 
-        HostDto hostDto = registerService.registerHost(createHostDto);
+    HostDto hostDto = registerService.registerHost(createHostDto);
 
-        return buildResponse(HttpStatus.CREATED, hostDto, "Host created successfully.");
-    }
+    return buildResponse(HttpStatus.CREATED, hostDto, "Host created successfully.");
+  }
 
-    @PostMapping("/guest")
-    public ResponseEntity<ApiResponse<GuestDto>> registerGuest(
-            @Valid @RequestBody CreateGuestDto createGuestDto) throws MessagingException {
+  @PostMapping("/guest")
+  public ResponseEntity<ApiResponse<GuestDto>> registerGuest(
+      @Valid @RequestBody CreateGuestDto createGuestDto) throws MessagingException {
 
-        GuestDto guestDto = registerService.registerGuest(createGuestDto);
+    GuestDto guestDto = registerService.registerGuest(createGuestDto);
 
-        return buildResponse(HttpStatus.CREATED, guestDto, "Guest created successfully.");
-    }
+    return buildResponse(HttpStatus.CREATED, guestDto, "Guest created successfully.");
+  }
 }

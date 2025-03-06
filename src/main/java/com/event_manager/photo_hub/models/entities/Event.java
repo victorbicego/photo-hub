@@ -16,14 +16,14 @@ import com.event_manager.photo_hub.models.Auditable;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(
-        name = "event",
-        uniqueConstraints = {@UniqueConstraint(columnNames = "username")})
+    name = "event",
+    uniqueConstraints = {@UniqueConstraint(columnNames = "username")})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event extends Auditable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 }

@@ -13,13 +13,13 @@ import com.event_manager.photo_hub.models.entities.Guest;
 @RequiredArgsConstructor
 public class GuestMapper {
 
-    private final ModelMapper modelMapper;
+  private final ModelMapper modelMapper;
 
-    public GuestDto toDto(Guest guest) {
-        return modelMapper.map(guest, GuestDto.class);
-    }
+  public GuestDto toDto(Guest guest) {
+    return modelMapper.map(guest, GuestDto.class);
+  }
 
-    public Guest toEntity(CreateGuestDto createGuestDto) {
-        return modelMapper.map(createGuestDto, Guest.class);
-    }
+  public Guest toEntity(CreateGuestDto createGuestDto) {
+    return modelMapper.map(createGuestDto, Guest.class);
+  }
 }

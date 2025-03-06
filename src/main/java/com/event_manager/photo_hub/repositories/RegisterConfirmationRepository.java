@@ -10,5 +10,5 @@ import com.event_manager.photo_hub.models.entities.RegisterConfirmation;
 @Repository
 public interface RegisterConfirmationRepository extends JpaRepository<RegisterConfirmation, Long> {
 
-    Optional<RegisterConfirmation> findByUsername(String username);
+  Optional<RegisterConfirmation> findByUsername(String username);
 }

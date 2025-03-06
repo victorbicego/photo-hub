@@ -10,8 +10,8 @@ import com.event_manager.photo_hub.models.dtos.ResetPasswordRequestDto;
 
 public interface ResetPasswordRequestService {
 
-    void sendResetPasswordEmail(EmailDto emailDto) throws MessagingException;
+  void sendResetPasswordEmail(EmailDto emailDto) throws MessagingException;
 
-    void confirmNewPassword(ResetPasswordRequestDto resetPasswordRequestDto)
-            throws NotFoundException, ExpiredRegistrationCodeException, BadRequestException;
+  void confirmNewPassword(ResetPasswordRequestDto resetPasswordRequestDto)
+      throws NotFoundException, ExpiredRegistrationCodeException, BadRequestException;
 }

@@ -1,11 +1,5 @@
 package com.event_manager.photo_hub.services.impl;
 
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.event_manager.photo_hub.exceptions.BadRequestException;
 import com.event_manager.photo_hub.models.Role;
 import com.event_manager.photo_hub.models.entities.Guest;
@@ -14,6 +8,10 @@ import com.event_manager.photo_hub.services.UserService;
 import com.event_manager.photo_hub.services.utils.RoleUtil;
 import com.event_manager.photo_hub.services_crud.GuestCrudService;
 import com.event_manager.photo_hub.services_crud.HostCrudService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

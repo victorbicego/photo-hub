@@ -6,7 +6,7 @@ import com.event_manager.photo_hub.exceptions.BadRequestException;
 
 public interface UserService {
 
-    UserDetails activateUser(String username) throws BadRequestException;
+  UserDetails activateUser(String username) throws BadRequestException;
 
-    void updatePassword(String username, String newPassword) throws BadRequestException;
+  void updatePassword(String username, String newPassword) throws BadRequestException;
 }

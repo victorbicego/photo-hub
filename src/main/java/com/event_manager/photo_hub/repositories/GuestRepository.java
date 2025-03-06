@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.event_manager.photo_hub.models.entities.Guest;
 
 @Repository
-public interface GuestRepository extends JpaRepository<Guest, Long>, BaseUserRepository<Guest> {
-}
+public interface GuestRepository extends JpaRepository<Guest, Long>, BaseUserRepository<Guest> {}
