@@ -16,6 +16,10 @@
 
     <properties>
         <java.version>21</java.version>
+        <modelmapper>3.1.1</modelmapper>
+        <jwt.general>0.11.5</jwt.general>
+        <bucket4j>7.6.0</bucket4j>
+        <zxing.core>3.4.1</zxing.core>
     </properties>
 
     <dependencies>
@@ -80,31 +84,43 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.1.1</version>
+            <version>${modelmapper}</version>
         </dependency>
 
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
+            <version>${jwt.general}</version>
         </dependency>
 
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
+            <version>${jwt.general}</version>
         </dependency>
 
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
+            <version>${jwt.general}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.vladimir-bukhtoyarov</groupId>
             <artifactId>bucket4j-core</artifactId> <!-- used to control rate limiting -->
-            <version>7.6.0</version>
+            <version>${bucket4j}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId> <!-- used to generate qrCode -->
+            <version>${zxing.core}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId> <!-- used to manipulate qrCode -->
+            <version>${zxing.core}</version>
         </dependency>
     </dependencies>
 
