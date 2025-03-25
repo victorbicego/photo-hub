@@ -50,9 +50,4 @@ public class HostCrudServiceImpl implements HostCrudService {
     }
     hostRepository.deleteById(id);
   }
-
-  @Override
-  public boolean existsById(Long id) {
-    return hostRepository.existsById(id);
-  }
 }

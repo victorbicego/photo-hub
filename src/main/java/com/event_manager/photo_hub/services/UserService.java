@@ -1,8 +1,7 @@
 package com.event_manager.photo_hub.services;
 
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.event_manager.photo_hub.exceptions.BadRequestException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface UserService {
 

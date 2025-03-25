@@ -20,6 +20,7 @@
         <jwt.general>0.11.5</jwt.general>
         <bucket4j>7.6.0</bucket4j>
         <zxing.core>3.4.1</zxing.core>
+        <metadata-extractor>2.18.0</metadata-extractor>
     </properties>
 
     <dependencies>
@@ -121,6 +122,12 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId> <!-- used to manipulate qrCode -->
             <version>${zxing.core}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId> <!-- used to extract metadata from photo -->
+            <version>${metadata-extractor}</version>
         </dependency>
     </dependencies>
 

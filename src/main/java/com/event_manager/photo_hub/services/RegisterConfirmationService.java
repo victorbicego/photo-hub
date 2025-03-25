@@ -11,9 +11,11 @@ import jakarta.mail.MessagingException;
 
 public interface RegisterConfirmationService {
 
-    LoginResponseDto confirmRegistration(RegisterConfirmationDto registerConfirmationDto)
-            throws NotFoundException, ExpiredRegistrationCodeException, InvalidRegistrationCodeException,
-            BadRequestException;
+  LoginResponseDto confirmRegistration(RegisterConfirmationDto registerConfirmationDto)
+      throws NotFoundException,
+          ExpiredRegistrationCodeException,
+          InvalidRegistrationCodeException,
+          BadRequestException;
 
-    void resendConfirmationCode(EmailDto emailDto) throws NotFoundException, MessagingException;
+  void resendConfirmationCode(EmailDto emailDto) throws NotFoundException, MessagingException;
 }

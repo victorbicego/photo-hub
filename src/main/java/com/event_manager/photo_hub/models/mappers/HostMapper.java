@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HostMapper {
 
-    private final ModelMapper modelMapper;
+  private final ModelMapper modelMapper;
 
-    public HostDto toDto(Host host) {
-        return modelMapper.map(host, HostDto.class);
-    }
+  public HostDto toDto(Host host) {
+    return modelMapper.map(host, HostDto.class);
+  }
 
-    public Host toEntity(CreateHostDto createHostDto) {
-        return modelMapper.map(createHostDto, Host.class);
-    }
+  public Host toEntity(CreateHostDto createHostDto) {
+    return modelMapper.map(createHostDto, Host.class);
+  }
 }

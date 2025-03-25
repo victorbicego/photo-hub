@@ -50,9 +50,4 @@ public class GuestCrudServiceImpl implements GuestCrudService {
     }
     guestRepository.deleteById(id);
   }
-
-  @Override
-  public boolean existsById(Long id) {
-    return guestRepository.existsById(id);
-  }
 }

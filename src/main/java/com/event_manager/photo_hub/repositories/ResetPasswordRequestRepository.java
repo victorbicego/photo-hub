@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ResetPasswordRequestRepository extends JpaRepository<ResetPasswordRequest, Long> {
 
-    Optional<ResetPasswordRequest> findByUsername(String username);
+  Optional<ResetPasswordRequest> findByUsername(String username);
 
-    Optional<ResetPasswordRequest> findByCodeAndUsername(String code, String username);
+  Optional<ResetPasswordRequest> findByCodeAndUsername(String code, String username);
 }

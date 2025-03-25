@@ -42,42 +42,38 @@ public class ResetPasswordRequestServiceImpl implements ResetPasswordRequestServ
   private ResetPasswordRequest getOrCreateResetPassword(String username) {
     Optional<ResetPasswordRequest> optionalResetPassword =
         resetPasswordRequestCrudService.findResetPasswordByUsername(username);
-    if (optionalResetPassword.isPresent()) {
-      return updateResetPasswordRequestExpiryDate(optionalResetPassword.get());
-    } else {
-      return createResetPasswordRequest(username);
-    }
+    return optionalResetPassword
+        .map(this::updateResetPasswordRequestExpiryDate)
+        .orElseGet(() -> createResetPasswordRequest(username));
   }
 
-  private ResetPasswordRequest updateResetPasswordRequestExpiryDate(
-      ResetPasswordRequest resetPasswordRequest) {
-    resetPasswordRequest.setExpiryDate(LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
-    return resetPasswordRequestCrudService.save(resetPasswordRequest);
+  private ResetPasswordRequest updateResetPasswordRequestExpiryDate(ResetPasswordRequest request) {
+    request.setExpiryDate(LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    return resetPasswordRequestCrudService.save(request);
   }
 
   private ResetPasswordRequest createResetPasswordRequest(String username) {
     String code = generateRandomCode(RESET_CODE_LENGTH);
-    ResetPasswordRequest resetPasswordRequest =
+    ResetPasswordRequest request =
         new ResetPasswordRequest(
             null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
-    return resetPasswordRequestCrudService.save(resetPasswordRequest);
+    return resetPasswordRequestCrudService.save(request);
   }
 
   @Override
-  public void confirmNewPassword(ResetPasswordRequestDto resetPasswordRequestDto)
+  public void confirmNewPassword(ResetPasswordRequestDto dto)
       throws NotFoundException, ExpiredRegistrationCodeException, BadRequestException {
-    ResetPasswordRequest foundResetPasswordRequest =
+    ResetPasswordRequest request =
         resetPasswordRequestCrudService.findResetPasswordByCodeAndUsername(
-            resetPasswordRequestDto.getCode(), resetPasswordRequestDto.getUsername());
-    checkIfRequestPasswordRequestIsExpired(foundResetPasswordRequest);
-    userService.updatePassword(
-        resetPasswordRequestDto.getUsername(), resetPasswordRequestDto.getPassword());
-    resetPasswordRequestCrudService.delete(foundResetPasswordRequest.getId());
+            dto.getCode(), dto.getUsername());
+    validateResetPasswordRequestExpiry(request);
+    userService.updatePassword(dto.getUsername(), dto.getPassword());
+    resetPasswordRequestCrudService.delete(request.getId());
   }
 
-  private void checkIfRequestPasswordRequestIsExpired(ResetPasswordRequest resetPasswordRequest)
+  private void validateResetPasswordRequestExpiry(ResetPasswordRequest request)
       throws ExpiredRegistrationCodeException {
-    if (LocalDateTime.now().isAfter(resetPasswordRequest.getExpiryDate())) {
+    if (LocalDateTime.now().isAfter(request.getExpiryDate())) {
       throw new ExpiredRegistrationCodeException("Reset password code has expired.");
     }
   }

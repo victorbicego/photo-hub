@@ -20,28 +20,28 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(
-        name = "reset_password",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+    name = "reset_password",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResetPasswordRequest extends Auditable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotNull
-    @Email
-    @Column(nullable = false, unique = true)
-    private String username;
+  @NotNull
+  @Email
+  @Column(nullable = false, unique = true)
+  private String username;
 
-    @NotNull
-    @Size(min = 10, max = 10)
-    @Column(nullable = false, length = 10)
-    private String code;
+  @NotNull
+  @Size(min = 10, max = 10)
+  @Column(nullable = false, length = 10)
+  private String code;
 
-    @NotNull
-    @Column(nullable = false)
-    private LocalDateTime expiryDate;
+  @NotNull
+  @Column(nullable = false)
+  private LocalDateTime expiryDate;
 }

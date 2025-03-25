@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (jwtToken != null) {
       String username = jwtService.extractUsername(jwtToken);
       if (username != null && isNotAuthenticated()) {
-        authenticateUser(request, jwtToken, username);
+        authenticateUser(request, response, jwtToken, username);
       }
     }
 
@@ -46,13 +46,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return SecurityContextHolder.getContext().getAuthentication() == null;
   }
 
-  private void authenticateUser(HttpServletRequest request, String jwtToken, String username) {
+  private void authenticateUser(
+      HttpServletRequest request, HttpServletResponse response, String jwtToken, String username) {
     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
     if (jwtService.isTokenValid(jwtToken, userDetails)) {
       UsernamePasswordAuthenticationToken authToken =
           new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
       authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
       SecurityContextHolder.getContext().setAuthentication(authToken);
+
+      response.addCookie(jwtService.createCookie(jwtToken));
     }
   }
 }

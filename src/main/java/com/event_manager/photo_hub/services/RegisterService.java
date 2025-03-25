@@ -9,7 +9,8 @@ import jakarta.mail.MessagingException;
 
 public interface RegisterService {
 
-    HostDto registerHost(CreateHostDto createHostDto) throws MessagingException;
+  HostDto registerHost(CreateHostDto createHostDto) throws MessagingException;
 
-    GuestDto registerGuest(CreateGuestDto createGuestDto) throws MessagingException, NotFoundException;
+  GuestDto registerGuest(CreateGuestDto createGuestDto)
+      throws MessagingException, NotFoundException;
 }

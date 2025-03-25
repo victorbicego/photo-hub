@@ -12,16 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateGuestDto {
 
-  @NotNull
-  @Email
-  private String username;
+  @NotNull @Email private String username;
 
   @NotNull
   @Size(min = 8)
   private String password;
-
-  @NotNull
-  private Boolean enabled;
 
   @Size(min = 1, max = 50)
   @NotNull
@@ -31,6 +26,5 @@ public class CreateGuestDto {
   @NotNull
   private String lastName;
 
-  @NotNull
-  private String eventQrCode;
+  @NotNull private String eventQrCode;
 }

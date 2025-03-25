@@ -1,16 +1,13 @@
 package com.event_manager.photo_hub.services.impl;
 
-import lombok.RequiredArgsConstructor;
-
+import com.event_manager.photo_hub.repositories.BaseUserRepository;
 import java.util.List;
 import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.event_manager.photo_hub.repositories.BaseUserRepository;
 
 @Service
 @RequiredArgsConstructor

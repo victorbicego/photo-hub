@@ -14,6 +14,4 @@ public interface GuestCrudService {
   Guest updatePassword(Long id, String encodedPassword) throws NotFoundException;
 
   void delete(Long id) throws NotFoundException;
-
-  boolean existsById(Long id);
 }

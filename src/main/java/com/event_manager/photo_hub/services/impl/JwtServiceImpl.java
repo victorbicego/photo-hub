@@ -2,6 +2,7 @@ package com.event_manager.photo_hub.services.impl;
 
 import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
 import com.event_manager.photo_hub.services.JwtService;
+import com.event_manager.photo_hub.services_crud.EventCrudService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,11 +25,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class JwtServiceImpl implements JwtService {
 
   private static final String JWT_TOKEN_KEY = "JWT_TOKEN";
-  private static final int JWT_TOKEN_EXPIRATION = 315360000; // Apr. 10 years in seconds
+  private static final String QRCODE_KEY = "QR_CODE";
+  private static final int COOKIE_EXPIRATION = 34560000; // Aproximadamente 400 dias
 
   private final String secretKey;
 
-  public JwtServiceImpl(@Value("${jwt.secret}") String secretKey) {
+  public JwtServiceImpl(
+      @Value("${jwt.secret}") String secretKey, EventCrudService eventCrudService) {
     this.secretKey = secretKey;
   }
 
@@ -51,13 +54,10 @@ public class JwtServiceImpl implements JwtService {
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
     long currentTimeMillis = System.currentTimeMillis();
     Date issuedAt = new Date(currentTimeMillis);
-    Date expirationDate = new Date(currentTimeMillis + JWT_TOKEN_EXPIRATION * 1000L);
-
     return Jwts.builder()
         .setClaims(extraClaims)
         .setSubject(userDetails.getUsername())
         .setIssuedAt(issuedAt)
-        .setExpiration(expirationDate)
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
         .compact();
   }
@@ -74,10 +74,25 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String extractTokenFromCookies(HttpServletRequest request) {
+  public String getActiveQrCode() throws InvalidJwtTokenException {
+    HttpServletRequest request = getCurrentHttpRequest();
+    String qrCode = extractQrCodeFromCookies(request);
+    if (qrCode != null) {
+      return qrCode;
+    } else {
+      throw new InvalidJwtTokenException("QrCode is not present or is invalid.");
+    }
+  }
+
+  @Override
+  public Cookie createEventLogoutCookie() {
+    return createCookie(QRCODE_KEY, "", 0);
+  }
+
+  private String getCookieValue(HttpServletRequest request, String cookieName) {
     if (request.getCookies() != null) {
       for (Cookie cookie : request.getCookies()) {
-        if (JWT_TOKEN_KEY.equals(cookie.getName())) {
+        if (cookieName.equals(cookie.getName())) {
           return cookie.getValue();
         }
       }
@@ -86,14 +101,33 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
+  public String extractTokenFromCookies(HttpServletRequest request) {
+    return getCookieValue(request, JWT_TOKEN_KEY);
+  }
+
+  private String extractQrCodeFromCookies(HttpServletRequest request) {
+    return getCookieValue(request, QRCODE_KEY);
+  }
+
+  @Override
   public Cookie createCookie(UserDetails userDetails) {
     String jwtToken = generateToken(userDetails);
-    Cookie cookie = new Cookie(JWT_TOKEN_KEY, jwtToken);
-    cookie.setHttpOnly(true);
-    cookie.setSecure(true);
-    cookie.setPath("/");
-    cookie.setMaxAge(JWT_TOKEN_EXPIRATION);
-    return cookie;
+    return createCookie(JWT_TOKEN_KEY, jwtToken, COOKIE_EXPIRATION);
+  }
+
+  @Override
+  public Cookie createCookie(String jwtToken) {
+    return createCookie(JWT_TOKEN_KEY, jwtToken, COOKIE_EXPIRATION);
+  }
+
+  @Override
+  public Cookie createLogoutCookie() {
+    return createCookie(JWT_TOKEN_KEY, "", 0);
+  }
+
+  @Override
+  public Cookie createQrCodeCookie(String qrCode) {
+    return createCookie(QRCODE_KEY, qrCode, COOKIE_EXPIRATION);
   }
 
   private HttpServletRequest getCurrentHttpRequest() {
@@ -117,5 +151,14 @@ public class JwtServiceImpl implements JwtService {
 
   private Key getSignInKey() {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+  }
+
+  private Cookie createCookie(String key, String value, int maxAge) {
+    Cookie cookie = new Cookie(key, value);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true);
+    cookie.setMaxAge(maxAge);
+    return cookie;
   }
 }

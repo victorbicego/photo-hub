@@ -1,12 +1,10 @@
 package com.event_manager.photo_hub.controllers;
 
+import com.event_manager.photo_hub.models.ApiResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import com.event_manager.photo_hub.models.ApiResponse;
 
 public class ControllerUtilService {
 

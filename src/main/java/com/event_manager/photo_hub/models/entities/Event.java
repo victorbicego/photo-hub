@@ -1,9 +1,9 @@
 package com.event_manager.photo_hub.models.entities;
 
+import com.event_manager.photo_hub.models.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,26 +15,21 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import com.event_manager.photo_hub.models.Auditable;
-import com.event_manager.photo_hub.models.EventEntityListener;
-
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(
     name = "event",
-        uniqueConstraints = {@UniqueConstraint(columnNames = "qrCode")})
+    uniqueConstraints = {@UniqueConstraint(columnNames = "qrCode")})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(EventEntityListener.class)
 public class Event extends Auditable {
 
   @Id
@@ -54,7 +49,7 @@ public class Event extends Auditable {
   private LocalDateTime endDate;
 
   @NotNull
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 1028)
   private String qrCode;
 
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,17 +58,15 @@ public class Event extends Auditable {
   @NotNull
   @ManyToOne
   @JoinTable(
-          name = "event_host",
-          joinColumns = @JoinColumn(name = "event_id"),
-          inverseJoinColumns = @JoinColumn(name = "host_id")
-  )
+      name = "event_host",
+      joinColumns = @JoinColumn(name = "event_id"),
+      inverseJoinColumns = @JoinColumn(name = "host_id"))
   private Host host;
 
   @ManyToMany
   @JoinTable(
-          name = "event_guests",
-          joinColumns = @JoinColumn(name = "event_id"),
-          inverseJoinColumns = @JoinColumn(name = "guest_id")
-  )
+      name = "event_guests",
+      joinColumns = @JoinColumn(name = "event_id"),
+      inverseJoinColumns = @JoinColumn(name = "guest_id"))
   private List<Guest> guests;
 }

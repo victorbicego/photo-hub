@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateHostDto {
 
-    @Size(min = 1, max = 50)
-    @NotNull
-    private String firstName;
+  @Size(min = 1, max = 50)
+  @NotNull
+  private String firstName;
 
-    @Size(min = 1, max = 50)
-    @NotNull
-    private String lastName;
+  @Size(min = 1, max = 50)
+  @NotNull
+  private String lastName;
 }

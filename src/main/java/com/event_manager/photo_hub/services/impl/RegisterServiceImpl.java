@@ -29,58 +29,61 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RegisterServiceImpl implements RegisterService {
 
-    private static final int CONFIRMATION_CODE_LENGTH = 10;
-    private static final int CODE_EXPIRY_MINUTES = 60;
+  private static final int CONFIRMATION_CODE_LENGTH = 10;
+  private static final int CODE_EXPIRY_MINUTES = 60;
 
-    private final HostCrudService hostCrudService;
-    private final GuestCrudService guestCrudService;
-    private final RegisterConfirmationCrudService registerConfirmationCrudService;
-    private final EmailService emailService;
-    private final HostMapper hostMapper;
-    private final GuestMapper guestMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final EventCrudService eventCrudService;
+  private final HostCrudService hostCrudService;
+  private final GuestCrudService guestCrudService;
+  private final RegisterConfirmationCrudService registerConfirmationCrudService;
+  private final EmailService emailService;
+  private final HostMapper hostMapper;
+  private final GuestMapper guestMapper;
+  private final PasswordEncoder passwordEncoder;
+  private final EventCrudService eventCrudService;
 
-    @Override
-    public HostDto registerHost(CreateHostDto createHostDto) throws MessagingException {
-        Host mappedHost = mapToEntity(createHostDto);
-        Host savedHost = hostCrudService.save(mappedHost);
-        sendRegisterConfirmation(savedHost.getUsername());
-        return hostMapper.toDto(savedHost);
-    }
+  @Override
+  public HostDto registerHost(CreateHostDto createHostDto) throws MessagingException {
+    Host host = convertToHostEntity(createHostDto);
+    Host savedHost = hostCrudService.save(host);
+    sendRegisterConfirmation(savedHost.getUsername());
+    return hostMapper.toDto(savedHost);
+  }
 
-    @Override
-    public GuestDto registerGuest(CreateGuestDto createGuestDto) throws MessagingException, NotFoundException {
-        Event event = eventCrudService.findByQrCode(createGuestDto.getEventQrCode());
-        Guest mappedGuest = mapToEntity(createGuestDto);
-        mappedGuest.getEvents().add(event);
-        Guest savedGuest = guestCrudService.save(mappedGuest);
-        sendRegisterConfirmation(savedGuest.getUsername());
-        return guestMapper.toDto(savedGuest);
-    }
+  @Override
+  public GuestDto registerGuest(CreateGuestDto createGuestDto)
+      throws MessagingException, NotFoundException {
+    Event event = eventCrudService.findByQrCode(createGuestDto.getEventQrCode());
+    Guest guest = convertToGuestEntity(createGuestDto);
+    guest.getEvents().add(event);
+    Guest savedGuest = guestCrudService.save(guest);
+    sendRegisterConfirmation(savedGuest.getUsername());
+    return guestMapper.toDto(savedGuest);
+  }
 
-    private Host mapToEntity(CreateHostDto createHostDto) {
-        Host host = hostMapper.toEntity(createHostDto);
-        host.setPassword(passwordEncoder.encode(createHostDto.getPassword()));
-        host.setEnabled(false);
-        return host;
-    }
+  private Host convertToHostEntity(CreateHostDto dto) {
+    Host host = hostMapper.toEntity(dto);
+    host.setPassword(passwordEncoder.encode(dto.getPassword()));
+    host.setEnabled(false);
+    return host;
+  }
 
-    private Guest mapToEntity(CreateGuestDto createGuestDto) {
-        Guest guest = guestMapper.toEntity(createGuestDto);
-        guest.setPassword(passwordEncoder.encode(createGuestDto.getPassword()));
-        guest.setEnabled(false);
-        return guest;
-    }
+  private Guest convertToGuestEntity(CreateGuestDto dto) {
+    Guest guest = guestMapper.toEntity(dto);
+    guest.setPassword(passwordEncoder.encode(dto.getPassword()));
+    guest.setEnabled(false);
+    return guest;
+  }
 
-    private void sendRegisterConfirmation(String username) throws MessagingException {
-        RegisterConfirmation confirmation = createRegisterConfirmation(username);
-        emailService.sendConfirmationCode(confirmation.getUsername(), confirmation.getCode());
-    }
+  private void sendRegisterConfirmation(String username) throws MessagingException {
+    RegisterConfirmation confirmation = createRegisterConfirmation(username);
+    emailService.sendConfirmationCode(confirmation.getUsername(), confirmation.getCode());
+  }
 
-    private RegisterConfirmation createRegisterConfirmation(String username) {
-        String code = generateRandomCode(CONFIRMATION_CODE_LENGTH);
-        RegisterConfirmation confirmation = new RegisterConfirmation(null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
-        return registerConfirmationCrudService.save(confirmation);
-    }
+  private RegisterConfirmation createRegisterConfirmation(String username) {
+    String code = generateRandomCode(CONFIRMATION_CODE_LENGTH);
+    RegisterConfirmation confirmation =
+        new RegisterConfirmation(
+            null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    return registerConfirmationCrudService.save(confirmation);
+  }
 }

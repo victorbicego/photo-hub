@@ -12,36 +12,36 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResetPasswordRequestCrudServiceImpl implements ResetPasswordRequestCrudService {
 
-    private final ResetPasswordRequestRepository resetPasswordRequestRepository;
+  private final ResetPasswordRequestRepository resetPasswordRequestRepository;
 
-    @Override
-    public ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username)
-            throws NotFoundException {
-        return resetPasswordRequestRepository
-                .findByCodeAndUsername(code, username)
-                .orElseThrow(
-                        () ->
-                                new NotFoundException(
-                                        String.format(
-                                                "No reset password found with code: '%s' and username: '%s'.",
-                                                code, username)));
-    }
+  @Override
+  public ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username)
+      throws NotFoundException {
+    return resetPasswordRequestRepository
+        .findByCodeAndUsername(code, username)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format(
+                        "No reset password found with code: '%s' and username: '%s'.",
+                        code, username)));
+  }
 
-    @Override
-    public Optional<ResetPasswordRequest> findResetPasswordByUsername(String username) {
-        return resetPasswordRequestRepository.findByUsername(username);
-    }
+  @Override
+  public Optional<ResetPasswordRequest> findResetPasswordByUsername(String username) {
+    return resetPasswordRequestRepository.findByUsername(username);
+  }
 
-    @Override
-    public ResetPasswordRequest save(ResetPasswordRequest resetPasswordRequest) {
-        return resetPasswordRequestRepository.save(resetPasswordRequest);
-    }
+  @Override
+  public ResetPasswordRequest save(ResetPasswordRequest resetPasswordRequest) {
+    return resetPasswordRequestRepository.save(resetPasswordRequest);
+  }
 
-    @Override
-    public void delete(Long id) throws NotFoundException {
-        if (!resetPasswordRequestRepository.existsById(id)) {
-            throw new NotFoundException(String.format("No reset password found with id: '%s'.", id));
-        }
-        resetPasswordRequestRepository.deleteById(id);
+  @Override
+  public void delete(Long id) throws NotFoundException {
+    if (!resetPasswordRequestRepository.existsById(id)) {
+      throw new NotFoundException(String.format("No reset password found with id: '%s'.", id));
     }
+    resetPasswordRequestRepository.deleteById(id);
+  }
 }

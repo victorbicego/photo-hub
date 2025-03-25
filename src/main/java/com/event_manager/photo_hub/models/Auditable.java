@@ -15,12 +15,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable {
 
-    @NotNull
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+  @NotNull
+  @CreatedDate
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime createdDate;
 
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime lastModifiedDate;
+  @LastModifiedDate
+  @Column(nullable = false)
+  private LocalDateTime lastModifiedDate;
 }

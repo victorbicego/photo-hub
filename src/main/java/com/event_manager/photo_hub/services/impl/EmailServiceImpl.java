@@ -35,7 +35,6 @@ public class EmailServiceImpl implements EmailService {
     context.setVariable(GREETING, "Olá,");
     context.setVariable(CODE, code);
 
-    // Processa diretamente o template reset_password.html
     String content = templateEngine.process("reset_password", context);
 
     sendEmail(username, subject, content);
@@ -51,7 +50,6 @@ public class EmailServiceImpl implements EmailService {
     context.setVariable(GREETING, "Olá,");
     context.setVariable(CODE, code);
 
-    // Processa diretamente o template confirmation_code.html
     String content = templateEngine.process("confirmation_code", context);
 
     sendEmail(to, subject, content);
@@ -67,7 +65,6 @@ public class EmailServiceImpl implements EmailService {
     context.setVariable(GREETING, "Olá,");
     context.setVariable(CODE, code);
 
-    // Processa diretamente o template resend_confirmation_code.html
     String content = templateEngine.process("resend_confirmation_code", context);
 
     sendEmail(to, subject, content);

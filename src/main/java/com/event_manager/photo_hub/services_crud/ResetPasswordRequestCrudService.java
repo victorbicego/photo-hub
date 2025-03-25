@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public interface ResetPasswordRequestCrudService {
 
-    ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username)
-            throws NotFoundException;
+  ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username)
+      throws NotFoundException;
 
-    Optional<ResetPasswordRequest> findResetPasswordByUsername(String username);
+  Optional<ResetPasswordRequest> findResetPasswordByUsername(String username);
 
-    ResetPasswordRequest save(ResetPasswordRequest resetPasswordRequest);
+  ResetPasswordRequest save(ResetPasswordRequest resetPasswordRequest);
 
-    void delete(Long id) throws NotFoundException;
+  void delete(Long id) throws NotFoundException;
 }

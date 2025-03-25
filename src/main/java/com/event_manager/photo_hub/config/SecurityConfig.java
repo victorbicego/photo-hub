@@ -26,20 +26,20 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             requests ->
                 requests
-                    .requestMatchers(
-                        "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**")
-                    .permitAll()
                     .requestMatchers("/api/v1/host/**")
                     .hasAuthority("HOST")
                     .requestMatchers("/api/v1/guest/**")
                     .hasAnyAuthority("HOST", "GUEST")
+                    .requestMatchers(
+                        "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    // .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class);
     return http.build();
   }
 }

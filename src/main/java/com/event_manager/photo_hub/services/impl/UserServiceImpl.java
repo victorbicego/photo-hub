@@ -17,42 +17,42 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final CustomUserDetailsService customUserDetailsService;
-    private final HostCrudService hostCrudService;
-    private final GuestCrudService guestCrudService;
-    private final PasswordEncoder passwordEncoder;
+  private final CustomUserDetailsService customUserDetailsService;
+  private final HostCrudService hostCrudService;
+  private final GuestCrudService guestCrudService;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails activateUser(String username) throws BadRequestException {
-        UserDetails user = customUserDetailsService.loadUserByUsername(username);
-        Role role = RoleUtil.determineRole(user);
-        if (role == Role.HOST) {
-            Host host = (Host) user;
-            host.setEnabled(true);
-            return hostCrudService.save(host);
-        } else if (role == Role.GUEST) {
-            Guest guest = (Guest) user;
-            guest.setEnabled(true);
-            return guestCrudService.save(guest);
-        } else {
-            throw new BadRequestException("Invalid user role.");
-        }
+  @Override
+  public UserDetails activateUser(String username) throws BadRequestException {
+    UserDetails user = customUserDetailsService.loadUserByUsername(username);
+    Role role = RoleUtil.determineRole(user);
+    if (role == Role.HOST) {
+      Host host = (Host) user;
+      host.setEnabled(true);
+      return hostCrudService.save(host);
+    } else if (role == Role.GUEST) {
+      Guest guest = (Guest) user;
+      guest.setEnabled(true);
+      return guestCrudService.save(guest);
+    } else {
+      throw new BadRequestException("Invalid user role.");
     }
+  }
 
-    @Override
-    public void updatePassword(String username, String newPassword) throws BadRequestException {
-        UserDetails user = customUserDetailsService.loadUserByUsername(username);
-        Role role = RoleUtil.determineRole(user);
-        if (role == Role.HOST) {
-            Host host = (Host) user;
-            host.setPassword(passwordEncoder.encode(newPassword));
-            hostCrudService.save(host);
-        } else if (role == Role.GUEST) {
-            Guest guest = (Guest) user;
-            guest.setPassword(passwordEncoder.encode(newPassword));
-            guestCrudService.save(guest);
-        } else {
-            throw new BadRequestException("Invalid user role.");
-        }
+  @Override
+  public void updatePassword(String username, String newPassword) throws BadRequestException {
+    UserDetails user = customUserDetailsService.loadUserByUsername(username);
+    Role role = RoleUtil.determineRole(user);
+    if (role == Role.HOST) {
+      Host host = (Host) user;
+      host.setPassword(passwordEncoder.encode(newPassword));
+      hostCrudService.save(host);
+    } else if (role == Role.GUEST) {
+      Guest guest = (Guest) user;
+      guest.setPassword(passwordEncoder.encode(newPassword));
+      guestCrudService.save(guest);
+    } else {
+      throw new BadRequestException("Invalid user role.");
     }
+  }
 }
