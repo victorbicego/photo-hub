@@ -40,4 +40,16 @@ public interface EventService {
 
   DownloadPhotosDto downloadEventMatchPhotos(List<Long> photoIds)
       throws InvalidJwtTokenException, NotFoundException;
+
+  List<PhotoDto> getHostEventPhotosByEventId(Long id)
+      throws InvalidJwtTokenException, NotFoundException;
+
+  List<PhotoDto> getGuestEventPhotosByEventId(Long id)
+      throws InvalidJwtTokenException, NotFoundException;
+
+  GetSinglePhotoDto getGuestEventPhotoByUrl(String url)
+      throws InvalidJwtTokenException, NotFoundException;
+
+  GetSinglePhotoDto getHostEventPhotoByUrl(String url)
+      throws InvalidJwtTokenException, NotFoundException;
 }

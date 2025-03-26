@@ -25,4 +25,12 @@ public class PhotoCrudServiceImpl implements PhotoCrudService {
     }
     photoRepository.deleteById(id);
   }
+
+  @Override
+  public Photo findByUrl(String url) throws NotFoundException {
+    return photoRepository
+        .findByPhotoUrl(url)
+        .orElseThrow(
+            () -> new NotFoundException(String.format("No photo found with url: '%s'.", url)));
+  }
 }

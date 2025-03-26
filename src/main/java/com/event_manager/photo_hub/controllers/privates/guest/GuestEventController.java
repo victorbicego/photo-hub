@@ -6,12 +6,17 @@ import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
 import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.ApiResponse;
 import com.event_manager.photo_hub.models.dtos.EventDto;
+import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
+import com.event_manager.photo_hub.models.dtos.PhotoDto;
 import com.event_manager.photo_hub.services.EventService;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +47,26 @@ public class GuestEventController {
       throws InvalidJwtTokenException, NotFoundException {
     EventDto eventDto = eventService.getByIdAndGuest(id);
     return buildResponse(HttpStatus.OK, eventDto, "Event retrieved successfully.");
+  }
+
+  @GetMapping("/{id}/photos")
+  public ResponseEntity<ApiResponse<List<PhotoDto>>> getEventPhotosByEventId(
+      @PathVariable @Positive Long id) throws InvalidJwtTokenException, NotFoundException {
+    List<PhotoDto> photos = eventService.getGuestEventPhotosByEventId(id);
+    return buildResponse(HttpStatus.OK, photos, "Photos found.");
+  }
+
+  @GetMapping("/photo")
+  public ResponseEntity<ByteArrayResource> getGuestEventPhotoByUrl(@RequestParam("url") String url)
+      throws InvalidJwtTokenException, NotFoundException {
+    GetSinglePhotoDto getSinglePhoto = eventService.getGuestEventPhotoByUrl(url);
+    ByteArrayResource resource = new ByteArrayResource(getSinglePhoto.getImageBytes());
+    MediaType mediaType = MediaType.parseMediaType(getSinglePhoto.getContentType());
+    String contentDisposition = "attachment; filename=\"" + getSinglePhoto.getFileName() + "\"";
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+        .contentLength(getSinglePhoto.getImageBytes().length)
+        .contentType(mediaType)
+        .body(resource);
   }
 }

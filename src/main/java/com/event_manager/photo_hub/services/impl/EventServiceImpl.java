@@ -238,6 +238,50 @@ public class EventServiceImpl implements EventService {
     return dto;
   }
 
+  @Override
+  public List<PhotoDto> getHostEventPhotosByEventId(Long id)
+      throws InvalidJwtTokenException, NotFoundException {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+    return foundEvent.getPhotos().stream().map(photoMapper::toDto).toList();
+  }
+
+  @Override
+  public List<PhotoDto> getGuestEventPhotosByEventId(Long id)
+      throws InvalidJwtTokenException, NotFoundException {
+    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
+    Event foundEvent = eventCrudService.findByIdAndGuest(id, authenticatedGuest);
+    return foundEvent.getPhotos().stream().map(photoMapper::toDto).toList();
+  }
+
+  @Override
+  public GetSinglePhotoDto getGuestEventPhotoByUrl(String url)
+      throws InvalidJwtTokenException, NotFoundException {
+    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
+    Photo foundPhoto = photoCrudService.findByUrl(url);
+    GetSinglePhotoDto singlePhotoDto = new GetSinglePhotoDto();
+    Path photoPath = Paths.get(foundPhoto.getPhotoUrl());
+    String fileName = photoPath.getFileName().toString();
+    singlePhotoDto.setFileName(fileName);
+    singlePhotoDto.setContentType(foundPhoto.getContentType());
+    singlePhotoDto.setImageBytes(readFileBytes(photoPath));
+    return singlePhotoDto;
+  }
+
+  @Override
+  public GetSinglePhotoDto getHostEventPhotoByUrl(String url)
+      throws InvalidJwtTokenException, NotFoundException {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Photo foundPhoto = photoCrudService.findByUrl(url);
+    GetSinglePhotoDto singlePhotoDto = new GetSinglePhotoDto();
+    Path photoPath = Paths.get(foundPhoto.getPhotoUrl());
+    String fileName = photoPath.getFileName().toString();
+    singlePhotoDto.setFileName(fileName);
+    singlePhotoDto.setContentType(foundPhoto.getContentType());
+    singlePhotoDto.setImageBytes(readFileBytes(photoPath));
+    return singlePhotoDto;
+  }
+
   private byte[] getRequestsPhotos(List<Photo> photos) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(baos)) {

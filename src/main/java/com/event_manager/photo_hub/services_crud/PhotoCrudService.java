@@ -8,4 +8,6 @@ public interface PhotoCrudService {
   Photo savePhoto(Photo photo);
 
   void delete(Long photoId) throws NotFoundException;
+
+  Photo findByUrl(String url) throws NotFoundException;
 }
