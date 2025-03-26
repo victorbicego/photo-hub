@@ -7,6 +7,7 @@ import com.event_manager.photo_hub.models.dtos.LoginRequestDto;
 import com.event_manager.photo_hub.models.dtos.LoginResponseDto;
 import com.event_manager.photo_hub.services.AuthenticationService;
 import com.event_manager.photo_hub.services.JwtService;
+import com.event_manager.photo_hub.services.utils.QrCodeGeneratorUtil;
 import com.event_manager.photo_hub.services.utils.RoleUtil;
 import com.event_manager.photo_hub.services_crud.EventCrudService;
 import jakarta.servlet.http.Cookie;
@@ -42,8 +43,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public Cookie authenticateQrCode(String qrCode) throws NotFoundException {
-    eventCrudService.findByQrCode(qrCode);
-    return jwtService.createQrCodeCookie(qrCode);
+    String qrCodeData = QrCodeGeneratorUtil.generateQrCode(qrCode);
+    eventCrudService.findByQrCode(qrCodeData);
+    return jwtService.createQrCodeCookie(qrCodeData);
   }
 
   @Override
