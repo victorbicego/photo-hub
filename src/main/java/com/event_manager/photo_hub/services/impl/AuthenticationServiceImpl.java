@@ -12,6 +12,9 @@ import com.event_manager.photo_hub.services.utils.RoleUtil;
 import com.event_manager.photo_hub.services_crud.EventCrudService;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Base64;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,7 +46,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public Cookie authenticateQrCode(String qrCode) throws NotFoundException {
-    String qrCodeData = QrCodeGeneratorUtil.generateQrCode(qrCode);
+    String qrCodeData;
+    if (isBase64(qrCode)) {
+      qrCodeData = qrCode;
+    } else {
+      qrCodeData = QrCodeGeneratorUtil.generateQrCode(qrCode);
+    }
     eventCrudService.findByQrCode(qrCodeData);
     return jwtService.createQrCodeCookie(qrCodeData);
   }
@@ -57,5 +65,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+  }
+
+  private boolean isBase64(String input) {
+    try {
+      Base64.getDecoder().decode(input);
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 }
