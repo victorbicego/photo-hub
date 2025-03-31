@@ -65,8 +65,8 @@ public class Event extends Auditable {
 
   @ManyToMany
   @JoinTable(
-      name = "event_guests",
+      name = "event_co_hosts",
       joinColumns = @JoinColumn(name = "event_id"),
-      inverseJoinColumns = @JoinColumn(name = "guest_id"))
-  private List<Guest> guests;
+      inverseJoinColumns = @JoinColumn(name = "host_id"))
+  private List<Host> coHosts;
 }

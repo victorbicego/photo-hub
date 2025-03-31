@@ -1,4 +1,4 @@
-package com.event_manager.photo_hub.controllers.privates.host;
+package com.event_manager.photo_hub.controllers.privates;
 
 import static com.event_manager.photo_hub.controllers.ControllerUtilService.buildResponse;
 

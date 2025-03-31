@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RateLimitingFilter implements Filter {
 
-  private static final Integer BUCKET_CAPACITY = 100;
-  private static final Integer REFILL_TOKENS = 100;
+  private static final Integer BUCKET_CAPACITY = 1000;
+  private static final Integer REFILL_TOKENS = 1000;
   private static final Duration REFILL_PERIOD = Duration.ofMinutes(1);
   private static final Integer TOKENS_PER_REQUEST = 1;
 

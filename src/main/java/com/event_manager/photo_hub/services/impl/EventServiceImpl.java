@@ -10,7 +10,6 @@ import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
 import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.dtos.*;
 import com.event_manager.photo_hub.models.entities.Event;
-import com.event_manager.photo_hub.models.entities.Guest;
 import com.event_manager.photo_hub.models.entities.Host;
 import com.event_manager.photo_hub.models.entities.Photo;
 import com.event_manager.photo_hub.models.mappers.EventMapper;
@@ -84,25 +83,6 @@ public class EventServiceImpl implements EventService {
     Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     return eventCrudService.findAllByFilterAndHost(search, pageable, authenticatedHost).stream()
-        .map(eventMapper::toDto)
-        .toList();
-  }
-
-  @Override
-  public EventDto getByIdAndGuest(Long id) throws InvalidJwtTokenException, NotFoundException {
-    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
-    Event foundEvent = eventCrudService.findByIdAndGuest(id, authenticatedGuest);
-    return eventMapper.toDto(foundEvent);
-  }
-
-  @Override
-  public List<EventDto> getAllByFilterAndGuest(
-      String search, String sortBy, String sortDirection, Integer page, Integer size)
-      throws InvalidJwtTokenException, NotFoundException {
-    Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
-    Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
-    return eventCrudService.findAllByFilterAndGuest(search, pageable, authenticatedGuest).stream()
         .map(eventMapper::toDto)
         .toList();
   }
@@ -190,13 +170,7 @@ public class EventServiceImpl implements EventService {
             .filter(photo -> photo.getId().equals(photoId))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Photo not found in the current event."));
-    Path photoPath = Paths.get(photoToDelete.getPhotoUrl());
-    try {
-      Files.deleteIfExists(photoPath);
-    } catch (IOException e) {
-      throw new RuntimeException("Error deleting photo file", e);
-    }
-    photoCrudService.delete(photoId);
+    deleteSinglePhoto(photoToDelete, foundEvent);
   }
 
   @Override
@@ -247,28 +221,6 @@ public class EventServiceImpl implements EventService {
   }
 
   @Override
-  public List<PhotoDto> getGuestEventPhotosByEventId(Long id)
-      throws InvalidJwtTokenException, NotFoundException {
-    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
-    Event foundEvent = eventCrudService.findByIdAndGuest(id, authenticatedGuest);
-    return foundEvent.getPhotos().stream().map(photoMapper::toDto).toList();
-  }
-
-  @Override
-  public GetSinglePhotoDto getGuestEventPhotoByUrl(String url)
-      throws InvalidJwtTokenException, NotFoundException {
-    Guest authenticatedGuest = authenticationHelper.getAuthenticatedGuest();
-    Photo foundPhoto = photoCrudService.findByUrl(url);
-    GetSinglePhotoDto singlePhotoDto = new GetSinglePhotoDto();
-    Path photoPath = Paths.get(foundPhoto.getPhotoUrl());
-    String fileName = photoPath.getFileName().toString();
-    singlePhotoDto.setFileName(fileName);
-    singlePhotoDto.setContentType(foundPhoto.getContentType());
-    singlePhotoDto.setImageBytes(readFileBytes(photoPath));
-    return singlePhotoDto;
-  }
-
-  @Override
   public GetSinglePhotoDto getHostEventPhotoByUrl(String url)
       throws InvalidJwtTokenException, NotFoundException {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
@@ -280,6 +232,106 @@ public class EventServiceImpl implements EventService {
     singlePhotoDto.setContentType(foundPhoto.getContentType());
     singlePhotoDto.setImageBytes(readFileBytes(photoPath));
     return singlePhotoDto;
+  }
+
+  @Override
+  public void deleteSelectedPhotos(Long id, PhotoListDto photoListDto)
+      throws InvalidJwtTokenException, NotFoundException {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    List<Photo> photosToDelete =
+        foundEvent.getPhotos().stream()
+            .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
+            .toList();
+
+    for (Photo photo : photosToDelete) {
+      deleteSinglePhoto(photo, foundEvent);
+    }
+  }
+
+  @Override
+  public PhotoDto uploadHostPhoto(Long id, MultipartFile file) throws Exception {
+    String contentType = file.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+      throw new BadRequestException("Invalid file format. Only image files are allowed.");
+    }
+
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    String normalizedEventName = normalizeFolderName(foundEvent.getName());
+    String photoUrl = storageService.uploadFile(file, normalizedEventName);
+
+    Photo photo = new Photo();
+    photo.setPhotoUrl(photoUrl);
+    photo.setUploadDate(extractPhotoTakenDate(file));
+    photo.setEvent(foundEvent);
+    photo.setContentType(contentType);
+
+    Photo savedPhoto = photoCrudService.savePhoto(photo);
+    return photoMapper.toDto(savedPhoto);
+  }
+
+  @Override
+  public DownloadPhotosDto downloadSelectedPhotos(Long id, PhotoListDto photoListDto)
+      throws NotFoundException, InvalidJwtTokenException {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    List<Photo> photosToDownload =
+        foundEvent.getPhotos().stream()
+            .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
+            .toList();
+
+    if (photosToDownload.isEmpty()) {
+      photosToDownload = foundEvent.getPhotos();
+    }
+
+    byte[] zipBytes = getRequestsPhotos(photosToDownload);
+
+    DownloadPhotosDto dto = new DownloadPhotosDto();
+    dto.setResource(new InputStreamResource(new ByteArrayInputStream(zipBytes)));
+    dto.setContentLength(zipBytes.length);
+    String normalizedEventName = foundEvent.getName().trim().toLowerCase().replaceAll("\\s+", "_");
+    dto.setEventName(normalizedEventName);
+    return dto;
+  }
+
+  @Override
+  public DownloadPhotosDto downloadSelectedPhotosFromActiveEvent(PhotoListDto photoListDto)
+      throws InvalidJwtTokenException, NotFoundException {
+    Event activeEvent = authenticationHelper.getActiveEvent();
+
+    List<Photo> photosToDownload =
+        activeEvent.getPhotos().stream()
+            .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
+            .toList();
+
+    if (photosToDownload.isEmpty()) {
+      photosToDownload = activeEvent.getPhotos();
+    }
+
+    byte[] zipBytes = getRequestsPhotos(photosToDownload);
+
+    DownloadPhotosDto dto = new DownloadPhotosDto();
+    dto.setResource(new InputStreamResource(new ByteArrayInputStream(zipBytes)));
+    dto.setContentLength(zipBytes.length);
+    String normalizedEventName = activeEvent.getName().trim().toLowerCase().replaceAll("\\s+", "_");
+    dto.setEventName(normalizedEventName);
+    return dto;
+  }
+
+  private void deleteSinglePhoto(Photo photo, Event event) throws NotFoundException {
+    Path photoPath = Paths.get(photo.getPhotoUrl());
+    try {
+      Files.deleteIfExists(photoPath);
+    } catch (IOException e) {
+      throw new RuntimeException("Error deleting photo file", e);
+    }
+    event.getPhotos().remove(photo);
+    eventCrudService.save(event);
+    // photoCrudService.delete(photo.getId());
   }
 
   private byte[] getRequestsPhotos(List<Photo> photos) {

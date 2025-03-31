@@ -2,21 +2,13 @@ package com.event_manager.photo_hub.services.impl;
 
 import static com.event_manager.photo_hub.services.utils.CodeGeneratorUtil.generateRandomCode;
 
-import com.event_manager.photo_hub.exceptions.NotFoundException;
-import com.event_manager.photo_hub.models.dtos.CreateGuestDto;
 import com.event_manager.photo_hub.models.dtos.CreateHostDto;
-import com.event_manager.photo_hub.models.dtos.GuestDto;
 import com.event_manager.photo_hub.models.dtos.HostDto;
-import com.event_manager.photo_hub.models.entities.Event;
-import com.event_manager.photo_hub.models.entities.Guest;
 import com.event_manager.photo_hub.models.entities.Host;
 import com.event_manager.photo_hub.models.entities.RegisterConfirmation;
-import com.event_manager.photo_hub.models.mappers.GuestMapper;
 import com.event_manager.photo_hub.models.mappers.HostMapper;
 import com.event_manager.photo_hub.services.EmailService;
 import com.event_manager.photo_hub.services.RegisterService;
-import com.event_manager.photo_hub.services_crud.EventCrudService;
-import com.event_manager.photo_hub.services_crud.GuestCrudService;
 import com.event_manager.photo_hub.services_crud.HostCrudService;
 import com.event_manager.photo_hub.services_crud.RegisterConfirmationCrudService;
 import jakarta.mail.MessagingException;
@@ -33,13 +25,10 @@ public class RegisterServiceImpl implements RegisterService {
   private static final int CODE_EXPIRY_MINUTES = 60;
 
   private final HostCrudService hostCrudService;
-  private final GuestCrudService guestCrudService;
   private final RegisterConfirmationCrudService registerConfirmationCrudService;
   private final EmailService emailService;
   private final HostMapper hostMapper;
-  private final GuestMapper guestMapper;
   private final PasswordEncoder passwordEncoder;
-  private final EventCrudService eventCrudService;
 
   @Override
   public HostDto registerHost(CreateHostDto createHostDto) throws MessagingException {
@@ -49,29 +38,11 @@ public class RegisterServiceImpl implements RegisterService {
     return hostMapper.toDto(savedHost);
   }
 
-  @Override
-  public GuestDto registerGuest(CreateGuestDto createGuestDto)
-      throws MessagingException, NotFoundException {
-    Event event = eventCrudService.findByQrCode(createGuestDto.getEventQrCode());
-    Guest guest = convertToGuestEntity(createGuestDto);
-    guest.getEvents().add(event);
-    Guest savedGuest = guestCrudService.save(guest);
-    sendRegisterConfirmation(savedGuest.getUsername());
-    return guestMapper.toDto(savedGuest);
-  }
-
   private Host convertToHostEntity(CreateHostDto dto) {
     Host host = hostMapper.toEntity(dto);
     host.setPassword(passwordEncoder.encode(dto.getPassword()));
     host.setEnabled(false);
     return host;
-  }
-
-  private Guest convertToGuestEntity(CreateGuestDto dto) {
-    Guest guest = guestMapper.toEntity(dto);
-    guest.setPassword(passwordEncoder.encode(dto.getPassword()));
-    guest.setEnabled(false);
-    return guest;
   }
 
   private void sendRegisterConfirmation(String username) throws MessagingException {

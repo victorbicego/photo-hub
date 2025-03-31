@@ -2,7 +2,6 @@ package com.event_manager.photo_hub.services_crud.impl;
 
 import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.entities.Event;
-import com.event_manager.photo_hub.models.entities.Guest;
 import com.event_manager.photo_hub.models.entities.Host;
 import com.event_manager.photo_hub.repositories.EventRepository;
 import com.event_manager.photo_hub.services_crud.EventCrudService;
@@ -43,19 +42,6 @@ public class EventCrudServiceImpl implements EventCrudService {
   @Override
   public Page<Event> findAllByFilter(String search, Pageable pageable) {
     return eventRepository.findBySearchTerm(search, pageable);
-  }
-
-  @Override
-  public Event findByIdAndGuest(Long id, Guest guest) throws NotFoundException {
-    return eventRepository
-        .findByIdAndGuest(id, guest)
-        .orElseThrow(
-            () -> new NotFoundException(String.format("No Event found with id: '%s'.", id)));
-  }
-
-  @Override
-  public Page<Event> findAllByFilterAndGuest(String search, Pageable pageable, Guest guest) {
-    return eventRepository.findBySearchTermAndGuest(search, pageable, guest);
   }
 
   @Override

@@ -8,6 +8,7 @@ import com.event_manager.photo_hub.models.ApiResponse;
 import com.event_manager.photo_hub.models.dtos.*;
 import com.event_manager.photo_hub.services.EventService;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -103,5 +104,22 @@ public class EventController {
       throws InvalidJwtTokenException, NotFoundException {
     EventDto eventDto = eventService.getActiveEvent();
     return buildResponse(HttpStatus.OK, eventDto, "Event retrieved successfully.");
+  }
+
+  @PostMapping("/photos/download")
+  public ResponseEntity<InputStreamResource> downloadEventPhotos(@RequestBody PhotoListDto photoListDto)
+      throws InvalidJwtTokenException, NotFoundException {
+    DownloadPhotosDto downloadPhotos =
+        eventService.downloadSelectedPhotosFromActiveEvent(photoListDto);
+    String fileName = downloadPhotos.getEventName() + "_photos.zip";
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+    headers.add("Access-Control-Expose-Headers", "Content-Disposition");
+
+    return ResponseEntity.ok()
+        .headers(headers)
+        .contentLength(downloadPhotos.getContentLength())
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(downloadPhotos.getResource());
   }
 }

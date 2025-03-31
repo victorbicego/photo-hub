@@ -17,12 +17,6 @@ public interface EventService {
       String search, String sortBy, String sortDirection, Integer page, Integer size)
       throws InvalidJwtTokenException, NotFoundException;
 
-  List<EventDto> getAllByFilterAndGuest(
-      String search, String sortBy, String sortDirection, Integer page, Integer size)
-      throws InvalidJwtTokenException, NotFoundException;
-
-  EventDto getByIdAndGuest(Long id) throws InvalidJwtTokenException, NotFoundException;
-
   PhotoDto uploadPhoto(MultipartFile file) throws Exception;
 
   List<PhotoRecognitionDto> getMatchedPhotos(MultipartFile file)
@@ -44,12 +38,16 @@ public interface EventService {
   List<PhotoDto> getHostEventPhotosByEventId(Long id)
       throws InvalidJwtTokenException, NotFoundException;
 
-  List<PhotoDto> getGuestEventPhotosByEventId(Long id)
-      throws InvalidJwtTokenException, NotFoundException;
-
-  GetSinglePhotoDto getGuestEventPhotoByUrl(String url)
-      throws InvalidJwtTokenException, NotFoundException;
-
   GetSinglePhotoDto getHostEventPhotoByUrl(String url)
       throws InvalidJwtTokenException, NotFoundException;
+
+  void deleteSelectedPhotos(Long id, PhotoListDto photoListDto)
+      throws InvalidJwtTokenException, NotFoundException;
+
+  PhotoDto uploadHostPhoto(Long id, MultipartFile file) throws Exception;
+
+  DownloadPhotosDto downloadSelectedPhotos(Long id, PhotoListDto photoListDto)
+      throws NotFoundException, InvalidJwtTokenException;
+
+  DownloadPhotosDto downloadSelectedPhotosFromActiveEvent(PhotoListDto photoListDto) throws InvalidJwtTokenException, NotFoundException;
 }
