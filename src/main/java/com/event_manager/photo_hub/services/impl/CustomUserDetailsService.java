@@ -16,12 +16,15 @@ public class CustomUserDetailsService implements UserDetailsService {
   private final List<BaseUserRepository<? extends UserDetails>> userRepositories;
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(String username) {
     return userRepositories.stream()
-            .map(repo -> repo.findByUsername(username))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .findFirst()
-            .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username '%s' not found.", username)));
+        .map(repo -> repo.findByUsername(username))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new UsernameNotFoundException(
+                    String.format("User with username '%s' not found.", username)));
   }
 }

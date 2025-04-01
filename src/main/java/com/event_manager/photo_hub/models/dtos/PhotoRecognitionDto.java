@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PhotoRecognitionDto extends PhotoDto {
 
-    @NotNull
-    private FaceBoundingBoxDto faceBoundingBox;
+  @NotNull private FaceBoundingBoxDto faceBoundingBox;
 }

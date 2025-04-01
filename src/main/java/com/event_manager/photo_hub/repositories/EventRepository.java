@@ -13,13 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-  Optional<Event> findByQrCode(String eventQrCode);
-
-  @Query(
-      "SELECT d FROM Event d "
-          + "WHERE (:searchTerm IS NULL OR "
-          + "LOWER(d.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
-  Page<Event> findBySearchTerm(String searchTerm, Pageable pageable);
+  Optional<Event> findByQrCode(String qrCode);
 
   Optional<Event> findByIdAndHost(Long id, Host host);
 

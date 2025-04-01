@@ -14,7 +14,7 @@ public class HostCrudServiceImpl implements HostCrudService {
   private final HostRepository hostRepository;
 
   @Override
-  public Host findById(Long id) throws NotFoundException {
+  public Host findById(Long id) {
     return hostRepository
         .findById(id)
         .orElseThrow(
@@ -22,7 +22,7 @@ public class HostCrudServiceImpl implements HostCrudService {
   }
 
   @Override
-  public Host findByUsername(String username) throws NotFoundException {
+  public Host findByUsername(String username) {
     return hostRepository
         .findByUsername(username)
         .orElseThrow(
@@ -37,14 +37,14 @@ public class HostCrudServiceImpl implements HostCrudService {
   }
 
   @Override
-  public Host updatePassword(Long id, String encodedPassword) throws NotFoundException {
+  public Host updatePassword(Long id, String encodedPassword) {
     Host foundHost = findById(id);
     foundHost.setPassword(encodedPassword);
     return hostRepository.save(foundHost);
   }
 
   @Override
-  public void delete(Long id) throws NotFoundException {
+  public void delete(Long id) {
     if (!hostRepository.existsById(id)) {
       throw new NotFoundException(String.format("No host found with id: '%d'.", id));
     }

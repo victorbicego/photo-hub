@@ -1,17 +1,16 @@
 package com.event_manager.photo_hub.services_crud;
 
-import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.entities.Host;
 
 public interface HostCrudService {
 
-  Host findById(Long id) throws NotFoundException;
+  Host findById(Long id);
 
-  Host findByUsername(String username) throws NotFoundException;
+  Host findByUsername(String username);
 
   Host save(Host host);
 
-  Host updatePassword(Long id, String encodedPassword) throws NotFoundException;
+  Host updatePassword(Long id, String password);
 
-  void delete(Long id) throws NotFoundException;
+  void delete(Long id);
 }

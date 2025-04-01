@@ -38,9 +38,9 @@ public class RegisterServiceImpl implements RegisterService {
     return hostMapper.toDto(savedHost);
   }
 
-  private Host convertToHostEntity(CreateHostDto dto) {
-    Host host = hostMapper.toEntity(dto);
-    host.setPassword(passwordEncoder.encode(dto.getPassword()));
+  private Host convertToHostEntity(CreateHostDto createHostDto) {
+    Host host = hostMapper.toEntity(createHostDto);
+    host.setPassword(passwordEncoder.encode(createHostDto.getPassword()));
     host.setEnabled(false);
     return host;
   }
@@ -52,8 +52,9 @@ public class RegisterServiceImpl implements RegisterService {
 
   private RegisterConfirmation createRegisterConfirmation(String username) {
     String code = generateRandomCode(CONFIRMATION_CODE_LENGTH);
-    RegisterConfirmation confirmation = new RegisterConfirmation(null, username, code,
-            LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
-    return registerConfirmationCrudService.save(confirmation);
+    RegisterConfirmation registerConfirmation =
+        new RegisterConfirmation(
+            null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    return registerConfirmationCrudService.save(registerConfirmation);
   }
 }

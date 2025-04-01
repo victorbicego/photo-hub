@@ -14,7 +14,7 @@ public class RegisterConfirmationCrudServiceImpl implements RegisterConfirmation
   private final RegisterConfirmationRepository registerConfirmationRepository;
 
   @Override
-  public RegisterConfirmation findByUsername(String username) throws NotFoundException {
+  public RegisterConfirmation findByUsername(String username) {
     return registerConfirmationRepository
         .findByUsername(username)
         .orElseThrow(
@@ -30,7 +30,7 @@ public class RegisterConfirmationCrudServiceImpl implements RegisterConfirmation
   }
 
   @Override
-  public void delete(Long id) throws NotFoundException {
+  public void delete(Long id) {
     if (!registerConfirmationRepository.existsById(id)) {
       throw new NotFoundException(
           String.format("No register confirmation found with id: '%d'.", id));

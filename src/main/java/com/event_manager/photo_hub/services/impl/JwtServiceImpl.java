@@ -2,7 +2,6 @@ package com.event_manager.photo_hub.services.impl;
 
 import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
 import com.event_manager.photo_hub.services.JwtService;
-import com.event_manager.photo_hub.services_crud.EventCrudService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -62,7 +61,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String getActiveUsername() throws InvalidJwtTokenException {
+  public String getActiveUsername() {
     HttpServletRequest request = getCurrentHttpRequest();
     String jwtToken = extractTokenFromCookies(request);
     if (jwtToken != null) {
@@ -73,7 +72,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String getActiveQrCode() throws InvalidJwtTokenException {
+  public String getActiveQrCode() {
     HttpServletRequest request = getCurrentHttpRequest();
     String qrCode = extractQrCodeFromCookies(request);
     if (qrCode != null) {
@@ -84,7 +83,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public Cookie createEventLogoutCookie() {
+  public Cookie createLogoutQrCodeCookie() {
     return createCookie(QRCODE_KEY, "", 0);
   }
 
@@ -130,7 +129,9 @@ public class JwtServiceImpl implements JwtService {
   }
 
   private HttpServletRequest getCurrentHttpRequest() {
-    return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+    return ((ServletRequestAttributes)
+            Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+        .getRequest();
   }
 
   private Claims extractAllClaims(String token) {

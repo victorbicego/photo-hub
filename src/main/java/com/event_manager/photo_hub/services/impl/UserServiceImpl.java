@@ -20,28 +20,25 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  public UserDetails activateUser(String username) throws BadRequestException {
+  public UserDetails activateUser(String username) {
     UserDetails user = customUserDetailsService.loadUserByUsername(username);
-    Role role = RoleUtil.determineRole(user);
-    if (role == Role.HOST) {
+    if (RoleUtil.determineRole(user) == Role.HOST) {
       Host host = (Host) user;
       host.setEnabled(true);
       return hostCrudService.save(host);
-    } else {
-      throw new BadRequestException("Invalid user role.");
     }
+    throw new BadRequestException("Invalid user role.");
   }
 
   @Override
-  public void updatePassword(String username, String newPassword) throws BadRequestException {
+  public void updatePassword(String username, String newPassword) {
     UserDetails user = customUserDetailsService.loadUserByUsername(username);
-    Role role = RoleUtil.determineRole(user);
-    if (role == Role.HOST) {
+    if (RoleUtil.determineRole(user) == Role.HOST) {
       Host host = (Host) user;
       host.setPassword(passwordEncoder.encode(newPassword));
       hostCrudService.save(host);
-    } else {
-      throw new BadRequestException("Invalid user role.");
+      return;
     }
+    throw new BadRequestException("Invalid user role.");
   }
 }

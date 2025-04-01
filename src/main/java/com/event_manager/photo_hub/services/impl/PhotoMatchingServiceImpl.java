@@ -2,7 +2,6 @@ package com.event_manager.photo_hub.services.impl;
 
 import com.event_manager.photo_hub.models.dtos.MatchedPhotosResponse;
 import com.event_manager.photo_hub.services.PhotoMatchingService;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,7 +23,7 @@ public class PhotoMatchingServiceImpl implements PhotoMatchingService {
   private String photoMatchingApiUrl;
 
   @Override
-  public MatchedPhotosResponse getMatchedPhotos(String event, MultipartFile file) throws IOException {
+  public MatchedPhotosResponse getMatchedPhotos(String event, MultipartFile file) {
     String url = photoMatchingApiUrl + "/match-photos?event=" + event;
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);

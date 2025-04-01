@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import org.springframework.core.io.InputStreamResource;
 
 @Data
@@ -12,15 +11,11 @@ import org.springframework.core.io.InputStreamResource;
 @NoArgsConstructor
 public class DownloadPhotosDto {
 
-    @NotNull
-    private InputStreamResource resource;
+  @NotNull private InputStreamResource resource;
 
-    @NotNull
-    private String eventName;
+  @NotNull private String eventName;
 
-    @NotNull
-    private long contentLength;
+  @NotNull private long contentLength;
 
-    @NotNull
-    private String fileName;
+  @NotNull private String fileName;
 }

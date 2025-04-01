@@ -1,12 +1,6 @@
 package com.event_manager.photo_hub.services;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
+import com.drew.imaging.ImageProcessingException;
 import com.event_manager.photo_hub.models.dtos.CreateEventDto;
 import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
 import com.event_manager.photo_hub.models.dtos.EventDto;
@@ -15,44 +9,40 @@ import com.event_manager.photo_hub.models.dtos.PhotoDto;
 import com.event_manager.photo_hub.models.dtos.PhotoListDto;
 import com.event_manager.photo_hub.models.dtos.PhotoRecognitionDto;
 import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
+import java.io.IOException;
+import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface EventService {
 
-    EventDto create(CreateEventDto event) throws InvalidJwtTokenException, NotFoundException;
+  List<EventDto> getAllByFilter(
+      String search, String sortBy, String sortDirection, Integer page, Integer size);
 
-    EventDto getById(Long id) throws NotFoundException, InvalidJwtTokenException;
+  EventDto getById(Long id);
 
-    List<EventDto> getAllByFilter(
-            String search, String sortBy, String sortDirection, Integer page, Integer size)
-            throws InvalidJwtTokenException, NotFoundException;
+  EventDto create(CreateEventDto event);
 
-    PhotoDto uploadPhoto(MultipartFile file);
+  EventDto update(Long id, UpdateEventDto updateEventDto);
 
-    List<PhotoRecognitionDto> getMatchedPhotos(MultipartFile file)
-            throws InvalidJwtTokenException, NotFoundException, IOException;
+  EventDto getActiveEvent();
 
-    List<PhotoDto> getPhotosByEvent() throws InvalidJwtTokenException, NotFoundException;
+  List<PhotoDto> getPhotosByActiveEvent();
 
-    GetSinglePhotoDto getPhotoByUrl(String url) throws InvalidJwtTokenException, NotFoundException;
+  List<PhotoDto> getPhotosByEventId(Long id);
 
-    EventDto getActiveEvent() throws InvalidJwtTokenException, NotFoundException;
+  PhotoDto uploadPhoto(Long id, MultipartFile file) throws IOException, ImageProcessingException;
 
-    List<PhotoDto> getPhotosByEventId(Long id)
-            throws InvalidJwtTokenException, NotFoundException;
+  PhotoDto uploadPhoto(MultipartFile file) throws IOException, ImageProcessingException;
 
-    GetSinglePhotoDto getHostEventPhotoByUrl(String url)
-            throws InvalidJwtTokenException, NotFoundException;
+  List<PhotoRecognitionDto> getMatchedPhotos(MultipartFile file);
 
-    void deletePhotos(Long id, PhotoListDto photoListDto)
-            throws InvalidJwtTokenException, NotFoundException;
+  GetSinglePhotoDto getPhotoByUrl(String url);
 
-    PhotoDto uploadPhoto(Long id, MultipartFile file);
+  GetSinglePhotoDto getHostEventPhotoByUrl(String url);
 
-    DownloadPhotosDto downloadPhotos(Long id, PhotoListDto photoListDto)
-            throws NotFoundException, InvalidJwtTokenException;
+  DownloadPhotosDto downloadPhotos(Long id, PhotoListDto photoListDto);
 
-    DownloadPhotosDto downloadSelectedPhotosFromActiveEvent(PhotoListDto photoListDto) throws InvalidJwtTokenException,
-            NotFoundException;
+  DownloadPhotosDto downloadPhotosByActiveEvent(PhotoListDto photoListDto);
 
-    EventDto update(Long id, UpdateEventDto updateEventDto) throws NotFoundException, InvalidJwtTokenException;
+  void deletePhotos(Long id, PhotoListDto photoListDto);
 }

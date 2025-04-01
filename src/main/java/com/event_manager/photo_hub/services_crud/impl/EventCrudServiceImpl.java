@@ -17,13 +17,12 @@ public class EventCrudServiceImpl implements EventCrudService {
   private final EventRepository eventRepository;
 
   @Override
-  public Event findByQrCode(String eventQrCode) throws NotFoundException {
+  public Event findByQrCode(String qrCode) {
     return eventRepository
-        .findByQrCode(eventQrCode)
+        .findByQrCode(qrCode)
         .orElseThrow(
             () ->
-                new NotFoundException(
-                    String.format("No event found with qrCode: '%s'.", eventQrCode)));
+                new NotFoundException(String.format("No event found with qrCode: '%s'.", qrCode)));
   }
 
   @Override
@@ -32,25 +31,12 @@ public class EventCrudServiceImpl implements EventCrudService {
   }
 
   @Override
-  public Event findById(Long id) throws NotFoundException {
-    return eventRepository
-        .findById(id)
-        .orElseThrow(
-            () -> new NotFoundException(String.format("No Event found with id: '%s'.", id)));
-  }
-
-  @Override
-  public Page<Event> findAllByFilter(String search, Pageable pageable) {
-    return eventRepository.findBySearchTerm(search, pageable);
-  }
-
-  @Override
   public Page<Event> findAllByFilterAndHost(String search, Pageable pageable, Host host) {
     return eventRepository.findBySearchTermAndHost(search, pageable, host);
   }
 
   @Override
-  public Event findByIdAndHost(Long id, Host host) throws NotFoundException {
+  public Event findByIdAndHost(Long id, Host host) {
     return eventRepository
         .findByIdAndHost(id, host)
         .orElseThrow(

@@ -1,7 +1,5 @@
 package com.event_manager.photo_hub.services.impl;
 
-import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.dtos.HostDto;
 import com.event_manager.photo_hub.models.dtos.PasswordDto;
 import com.event_manager.photo_hub.models.dtos.UpdateHostDto;
@@ -24,13 +22,13 @@ public class HostServiceImpl implements HostService {
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  public HostDto get() throws InvalidJwtTokenException, NotFoundException {
+  public HostDto get() {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     return hostMapper.toDto(authenticatedHost);
   }
 
   @Override
-  public HostDto update(UpdateHostDto updateHostDto) throws InvalidJwtTokenException, NotFoundException {
+  public HostDto update(UpdateHostDto updateHostDto) {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     authenticatedHost.setFirstName(updateHostDto.getFirstName());
     authenticatedHost.setLastName(updateHostDto.getLastName());
@@ -39,14 +37,16 @@ public class HostServiceImpl implements HostService {
   }
 
   @Override
-  public HostDto updatePassword(PasswordDto passwordDto) throws InvalidJwtTokenException, NotFoundException {
+  public HostDto updatePassword(PasswordDto passwordDto) {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
-    Host savedHost = hostCrudService.updatePassword(authenticatedHost.getId(), passwordEncoder.encode(passwordDto.getPassword()));
+    Host savedHost =
+        hostCrudService.updatePassword(
+            authenticatedHost.getId(), passwordEncoder.encode(passwordDto.getPassword()));
     return hostMapper.toDto(savedHost);
   }
 
   @Override
-  public void delete() throws InvalidJwtTokenException, NotFoundException {
+  public void delete() {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     hostCrudService.delete(authenticatedHost.getId());
   }

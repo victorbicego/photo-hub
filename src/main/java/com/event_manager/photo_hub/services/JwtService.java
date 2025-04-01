@@ -2,34 +2,30 @@ package com.event_manager.photo_hub.services;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Map;
-
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
 
 public interface JwtService {
 
-    String extractUsername(String token);
+  String extractUsername(String token);
 
-    boolean isTokenValid(String token, UserDetails userDetails);
+  boolean isTokenValid(String token, UserDetails userDetails);
 
-    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
+  String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
 
-    String getActiveUsername() throws InvalidJwtTokenException;
+  String getActiveUsername();
 
-    String extractTokenFromCookies(HttpServletRequest request);
+  String extractTokenFromCookies(HttpServletRequest request);
 
-    Cookie createCookie(UserDetails userDetails);
+  Cookie createCookie(UserDetails userDetails);
 
-    Cookie createCookie(String jwtToken);
+  Cookie createCookie(String jwtToken);
 
-    Cookie createLogoutCookie();
+  Cookie createLogoutCookie();
 
-    Cookie createQrCodeCookie(String qrCode);
+  Cookie createQrCodeCookie(String qrCode);
 
-    String getActiveQrCode() throws InvalidJwtTokenException;
+  String getActiveQrCode();
 
-    Cookie createEventLogoutCookie();
+  Cookie createLogoutQrCodeCookie();
 }

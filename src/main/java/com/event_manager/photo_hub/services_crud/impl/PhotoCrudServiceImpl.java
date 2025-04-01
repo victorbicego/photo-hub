@@ -19,7 +19,7 @@ public class PhotoCrudServiceImpl implements PhotoCrudService {
   }
 
   @Override
-  public void delete(Long id) throws NotFoundException {
+  public void delete(Long id) {
     if (!photoRepository.existsById(id)) {
       throw new NotFoundException(String.format("No photo found with id: '%d'.", id));
     }
@@ -27,7 +27,7 @@ public class PhotoCrudServiceImpl implements PhotoCrudService {
   }
 
   @Override
-  public Photo findByUrl(String url) throws NotFoundException {
+  public Photo findByUrl(String url) {
     return photoRepository
         .findByPhotoUrl(url)
         .orElseThrow(

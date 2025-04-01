@@ -15,8 +15,7 @@ public class ResetPasswordRequestCrudServiceImpl implements ResetPasswordRequest
   private final ResetPasswordRequestRepository resetPasswordRequestRepository;
 
   @Override
-  public ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username)
-      throws NotFoundException {
+  public ResetPasswordRequest findResetPasswordByCodeAndUsername(String code, String username) {
     return resetPasswordRequestRepository
         .findByCodeAndUsername(code, username)
         .orElseThrow(
@@ -38,7 +37,7 @@ public class ResetPasswordRequestCrudServiceImpl implements ResetPasswordRequest
   }
 
   @Override
-  public void delete(Long id) throws NotFoundException {
+  public void delete(Long id) {
     if (!resetPasswordRequestRepository.existsById(id)) {
       throw new NotFoundException(String.format("No reset password found with id: '%s'.", id));
     }

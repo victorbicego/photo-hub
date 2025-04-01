@@ -1,7 +1,5 @@
 package com.event_manager.photo_hub.services.helpers;
 
-import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.entities.Event;
 import com.event_manager.photo_hub.models.entities.Host;
 import com.event_manager.photo_hub.services.JwtService;
@@ -18,12 +16,12 @@ public class AuthenticationHelper {
   private final HostCrudService hostCrudService;
   private final EventCrudService eventCrudService;
 
-  public Host getAuthenticatedHost() throws NotFoundException, InvalidJwtTokenException {
+  public Host getAuthenticatedHost() {
     String username = jwtService.getActiveUsername();
     return hostCrudService.findByUsername(username);
   }
 
-  public Event getActiveEvent() throws InvalidJwtTokenException, NotFoundException {
+  public Event getActiveEvent() {
     String qrCode = jwtService.getActiveQrCode();
     return eventCrudService.findByQrCode(qrCode);
   }

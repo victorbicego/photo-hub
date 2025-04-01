@@ -26,7 +26,6 @@ public class StorageServiceImpl implements StorageService {
     if (!Files.exists(eventDirectory)) {
       Files.createDirectories(eventDirectory);
     }
-
     String filename = buildFileName(file.getOriginalFilename(), eventName);
     Path destinationFile = eventDirectory.resolve(filename).normalize().toAbsolutePath();
     if (!destinationFile.getParent().equals(eventDirectory.toAbsolutePath())) {
