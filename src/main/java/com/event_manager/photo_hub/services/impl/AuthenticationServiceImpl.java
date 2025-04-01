@@ -32,8 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Override
   public LoginResponseDto authenticate(LoginRequestDto loginRequestDto) throws BadRequestException {
     authenticateCredentials(loginRequestDto);
-    UserDetails foundUser =
-        customUserDetailsService.loadUserByUsername(loginRequestDto.getUsername());
+    UserDetails foundUser = customUserDetailsService.loadUserByUsername(loginRequestDto.getUsername());
     Cookie cookie = jwtService.createCookie(foundUser);
     Role role = RoleUtil.determineRole(foundUser);
     return new LoginResponseDto(cookie, foundUser.getUsername(), role);
@@ -46,12 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public Cookie authenticateQrCode(String qrCode) throws NotFoundException {
-    String qrCodeData;
-    if (isBase64(qrCode)) {
-      qrCodeData = qrCode;
-    } else {
-      qrCodeData = QrCodeGeneratorUtil.generateQrCode(qrCode);
-    }
+    String qrCodeData = isBase64(qrCode) ? qrCode : QrCodeGeneratorUtil.generateQrCode(qrCode);
     eventCrudService.findByQrCode(qrCodeData);
     return jwtService.createQrCodeCookie(qrCodeData);
   }
@@ -62,8 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   private void authenticateCredentials(LoginRequestDto loginRequestDto) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
             loginRequestDto.getUsername(), loginRequestDto.getPassword()));
   }
 

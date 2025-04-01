@@ -1,16 +1,14 @@
 package com.event_manager.photo_hub.controllers.privates;
 
 import static com.event_manager.photo_hub.controllers.ControllerUtilService.buildResponse;
-
-import com.event_manager.photo_hub.exceptions.InvalidJwtTokenException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
-import com.event_manager.photo_hub.models.ApiResponse;
-import com.event_manager.photo_hub.models.dtos.*;
-import com.event_manager.photo_hub.services.EventService;
+import static com.event_manager.photo_hub.controllers.ControllerUtilService.validateDateRange;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +16,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.event_manager.photo_hub.models.ApiResponse;
+import com.event_manager.photo_hub.models.dtos.CreateEventDto;
+import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
+import com.event_manager.photo_hub.models.dtos.EventDto;
+import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
+import com.event_manager.photo_hub.models.dtos.PhotoDto;
+import com.event_manager.photo_hub.models.dtos.PhotoListDto;
+import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
+import com.event_manager.photo_hub.services.EventService;
 
 @RestController
 @RequestMapping("/api/v1/host/event")
@@ -27,94 +43,90 @@ import org.springframework.web.multipart.MultipartFile;
 @Validated
 public class HostEventController {
 
-  private final EventService eventService;
+    private final EventService eventService;
 
-  @GetMapping
-  public ResponseEntity<ApiResponse<List<EventDto>>> getAllEventsForHost(
-      @RequestParam(defaultValue = "", required = false) String search,
-      @RequestParam(defaultValue = "name", required = false) String sortBy,
-      @RequestParam(defaultValue = "asc", required = false) String sortDirection,
-      @RequestParam(defaultValue = "0", required = false) @Min(0) Integer page,
-      @RequestParam(defaultValue = "10", required = false) @Min(0) Integer size)
-      throws InvalidJwtTokenException, NotFoundException {
-    List<EventDto> eventDtoList =
-        eventService.getAllByFilterAndHost(search, sortBy, sortDirection, page, size);
-    return buildResponse(HttpStatus.OK, eventDtoList, "Events retrieved successfully.");
-  }
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<EventDto>>> getAllEvents(
+            @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "name", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDirection,
+            @RequestParam(defaultValue = "0", required = false) @Min(0) Integer page,
+            @RequestParam(defaultValue = "10", required = false) @Min(0) Integer size) {
+        List<EventDto> eventDtoList = eventService.getAllByFilter(search, sortBy, sortDirection, page, size);
+        return buildResponse(HttpStatus.OK, eventDtoList, "Events retrieved successfully.");
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ApiResponse<EventDto>> getEventByIdForHost(@PathVariable @Positive Long id)
-      throws InvalidJwtTokenException, NotFoundException {
-    EventDto eventDto = eventService.getByIdAndHost(id);
-    return buildResponse(HttpStatus.OK, eventDto, "Event retrieved successfully.");
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<EventDto>> getEventById(@PathVariable @Positive Long id) {
+        EventDto eventDto = eventService.getById(id);
+        return buildResponse(HttpStatus.OK, eventDto, "Event retrieved successfully.");
+    }
 
-  @PostMapping
-  public ResponseEntity<ApiResponse<EventDto>> createEvent(@RequestBody CreateEventDto event)
-      throws InvalidJwtTokenException, NotFoundException {
-    EventDto createdEvent = eventService.createEvent(event);
-    return buildResponse(HttpStatus.OK, createdEvent, "Event created.");
-  }
+    @PostMapping
+    public ResponseEntity<ApiResponse<EventDto>> createEvent(@RequestBody @Valid CreateEventDto createEventDto) {
+        EventDto eventDto = eventService.create(createEventDto);
+        validateDateRange(createEventDto.getStartDate(), createEventDto.getEndDate());
+        return buildResponse(HttpStatus.CREATED, eventDto, "Event created successfully.");
+    }
 
-  @DeleteMapping("/photo/{photoId}")
-  public ResponseEntity<ApiResponse<Void>> deletePhoto(@PathVariable Long photoId)
-      throws NotFoundException, InvalidJwtTokenException {
-    eventService.deletePhoto(photoId);
-    return buildResponse(HttpStatus.OK, null, "Photo deleted successfully.");
-  }
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<EventDto>> updateEvent(@PathVariable @Positive Long id,
+                                                             @RequestBody @Valid UpdateEventDto updateEventDto) {
+        validateDateRange(updateEventDto.getStartDate(), updateEventDto.getEndDate());
+        EventDto eventDto = eventService.update(id, updateEventDto);
+        return buildResponse(HttpStatus.OK, eventDto, "Event updated successfully.");
+    }
 
-  @DeleteMapping("/{id}/photos")
-  public ResponseEntity<ApiResponse<Void>> deletePhotos(
-      @PathVariable @Positive Long id, @RequestBody PhotoListDto photoListDto)
-      throws NotFoundException, InvalidJwtTokenException {
+    // Todo: Add delete event method ?
 
-    eventService.deleteSelectedPhotos(id, photoListDto);
+    @GetMapping("/{id}/photos")
+    public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotos(@PathVariable @Positive Long id) {
+        List<PhotoDto> photoDtoList = eventService.getPhotosByEventId(id);
+        return buildResponse(HttpStatus.OK, photoDtoList, "Photos retrieved successfully.");
+    }
 
-    return buildResponse(HttpStatus.OK, null, "Photos deleted successfully.");
-  }
+    @GetMapping("/photo")
+    public ResponseEntity<ByteArrayResource> getPhotoByUrl(@RequestParam("url") String url) {
 
-  @GetMapping("/{id}/photos")
-  public ResponseEntity<ApiResponse<List<PhotoDto>>> getEventPhotosByEventId(
-      @PathVariable @Positive Long id) throws InvalidJwtTokenException, NotFoundException {
-    List<PhotoDto> photos = eventService.getHostEventPhotosByEventId(id);
-    return buildResponse(HttpStatus.OK, photos, "Photos found.");
-  }
+        GetSinglePhotoDto getSinglePhoto = eventService.getHostEventPhotoByUrl(url);
+        ByteArrayResource resource = new ByteArrayResource(getSinglePhoto.getImageBytes());
+        MediaType mediaType = MediaType.parseMediaType(getSinglePhoto.getContentType());
+        String contentDisposition = "attachment; filename=\"" + getSinglePhoto.getFileName() + "\"";
 
-  @PostMapping("/{id}/photo")
-  public ResponseEntity<ApiResponse<PhotoDto>> uploadPhoto(
-      @PathVariable @Positive Long id, @RequestParam("file") MultipartFile file) throws Exception {
-    PhotoDto photo = eventService.uploadHostPhoto(id, file);
-    return buildResponse(HttpStatus.OK, photo, "Photo saved.");
-  }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .contentLength(getSinglePhoto.getImageBytes().length)
+                .contentType(mediaType)
+                .body(resource);
+    }
 
-  @GetMapping("/photo")
-  public ResponseEntity<ByteArrayResource> getHostEventPhotoByUrl(@RequestParam("url") String url)
-      throws InvalidJwtTokenException, NotFoundException {
-    GetSinglePhotoDto getSinglePhoto = eventService.getHostEventPhotoByUrl(url);
-    ByteArrayResource resource = new ByteArrayResource(getSinglePhoto.getImageBytes());
-    MediaType mediaType = MediaType.parseMediaType(getSinglePhoto.getContentType());
-    String contentDisposition = "attachment; filename=\"" + getSinglePhoto.getFileName() + "\"";
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-        .contentLength(getSinglePhoto.getImageBytes().length)
-        .contentType(mediaType)
-        .body(resource);
-  }
+    @PostMapping("/{id}/photos/download")
+    public ResponseEntity<InputStreamResource> downloadPhotos(@PathVariable @Positive Long id,
+                                                              @RequestBody @Valid PhotoListDto photoListDto) {
 
-  @PostMapping("/{id}/photos/download")
-  public ResponseEntity<InputStreamResource> downloadEventPhotos(
-      @PathVariable @Positive Long id, @RequestBody PhotoListDto photoListDto)
-      throws InvalidJwtTokenException, NotFoundException {
-    DownloadPhotosDto downloadPhotos = eventService.downloadSelectedPhotos(id, photoListDto);
-    String fileName = downloadPhotos.getEventName() + "_photos.zip";
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-    headers.add("Access-Control-Expose-Headers", "Content-Disposition");
+        DownloadPhotosDto downloadPhotos = eventService.downloadPhotos(id, photoListDto);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + downloadPhotos.getFileName() + "\"");
+        headers.add("Access-Control-Expose-Headers", "Content-Disposition");
 
-    return ResponseEntity.ok()
-        .headers(headers)
-        .contentLength(downloadPhotos.getContentLength())
-        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-        .body(downloadPhotos.getResource());
-  }
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(downloadPhotos.getContentLength())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(downloadPhotos.getResource());
+    }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<ApiResponse<PhotoDto>> uploadPhoto(@PathVariable @Positive Long id,
+                                                             @RequestParam("file") MultipartFile file) {
+        PhotoDto photoDto = eventService.uploadPhoto(id, file);
+        return buildResponse(HttpStatus.OK, photoDto, "Photo saved.");
+    }
+
+    @DeleteMapping("/{id}/photos")
+    public ResponseEntity<ApiResponse<Void>> deletePhotos(@PathVariable @Positive Long id,
+                                                          @RequestBody @Valid PhotoListDto photoListDto) {
+        eventService.deletePhotos(id, photoListDto);
+        return buildResponse(HttpStatus.OK, null, "Photos deleted successfully.");
+    }
 }

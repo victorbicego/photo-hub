@@ -30,8 +30,7 @@ public class JwtServiceImpl implements JwtService {
 
   private final String secretKey;
 
-  public JwtServiceImpl(
-      @Value("${jwt.secret}") String secretKey, EventCrudService eventCrudService) {
+  public JwtServiceImpl(@Value("${jwt.secret}") String secretKey) {
     this.secretKey = secretKey;
   }
 
@@ -131,9 +130,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   private HttpServletRequest getCurrentHttpRequest() {
-    return ((ServletRequestAttributes)
-            Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
-        .getRequest();
+    return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
   }
 
   private Claims extractAllClaims(String token) {

@@ -24,8 +24,7 @@ public class PhotoMatchingServiceImpl implements PhotoMatchingService {
   private String photoMatchingApiUrl;
 
   @Override
-  public MatchedPhotosResponse getMatchedPhotos(String event, MultipartFile file)
-      throws IOException {
+  public MatchedPhotosResponse getMatchedPhotos(String event, MultipartFile file) throws IOException {
     String url = photoMatchingApiUrl + "/match-photos?event=" + event;
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);

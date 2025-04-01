@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MatchedPhotoDto {
 
-  @NotNull private String filePath;
+    @NotNull
+    private String filePath;
 
-  @NotNull private FaceBoundingBoxDto faceBoundingBox;
+    @NotNull
+    private FaceBoundingBoxDto faceBoundingBox;
 }

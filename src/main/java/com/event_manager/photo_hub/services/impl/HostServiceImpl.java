@@ -24,14 +24,13 @@ public class HostServiceImpl implements HostService {
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  public HostDto getInfo() throws InvalidJwtTokenException, NotFoundException {
+  public HostDto get() throws InvalidJwtTokenException, NotFoundException {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     return hostMapper.toDto(authenticatedHost);
   }
 
   @Override
-  public HostDto update(UpdateHostDto updateHostDto)
-      throws InvalidJwtTokenException, NotFoundException {
+  public HostDto update(UpdateHostDto updateHostDto) throws InvalidJwtTokenException, NotFoundException {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     authenticatedHost.setFirstName(updateHostDto.getFirstName());
     authenticatedHost.setLastName(updateHostDto.getLastName());
@@ -40,12 +39,9 @@ public class HostServiceImpl implements HostService {
   }
 
   @Override
-  public HostDto updatePassword(PasswordDto updatePasswordDto)
-      throws InvalidJwtTokenException, NotFoundException {
+  public HostDto updatePassword(PasswordDto passwordDto) throws InvalidJwtTokenException, NotFoundException {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
-    Host savedHost =
-        hostCrudService.updatePassword(
-            authenticatedHost.getId(), passwordEncoder.encode(updatePasswordDto.getPassword()));
+    Host savedHost = hostCrudService.updatePassword(authenticatedHost.getId(), passwordEncoder.encode(passwordDto.getPassword()));
     return hostMapper.toDto(savedHost);
   }
 

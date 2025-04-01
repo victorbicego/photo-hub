@@ -33,24 +33,18 @@ public class RegisterConfirmationServiceImpl implements RegisterConfirmationServ
   private final UserService userService;
 
   @Override
-  public LoginResponseDto confirmRegistration(RegisterConfirmationDto confirmationDto)
-      throws NotFoundException,
-          ExpiredRegistrationCodeException,
-          InvalidRegistrationCodeException,
-          BadRequestException {
-    RegisterConfirmation found =
-        registerConfirmationCrudService.findByUsername(confirmationDto.getUsername());
-    validateConfirmationCode(found, confirmationDto);
-    UserDetails activatedUser = userService.activateUser(found.getUsername());
-    registerConfirmationCrudService.delete(found.getId());
+  public LoginResponseDto confirmRegistration(RegisterConfirmationDto registerConfirmationDto)
+          throws NotFoundException, ExpiredRegistrationCodeException, InvalidRegistrationCodeException, BadRequestException {
+    RegisterConfirmation registerConfirmation = registerConfirmationCrudService.findByUsername(registerConfirmationDto.getUsername());
+    validateConfirmationCode(registerConfirmation, registerConfirmationDto);
+    UserDetails activatedUser = userService.activateUser(registerConfirmation.getUsername());
+    registerConfirmationCrudService.delete(registerConfirmation.getId());
     Cookie cookie = jwtService.createCookie(activatedUser);
-    return new LoginResponseDto(
-        cookie, activatedUser.getUsername(), RoleUtil.determineRole(activatedUser));
+    return new LoginResponseDto(cookie, activatedUser.getUsername(), RoleUtil.determineRole(activatedUser));
   }
 
-  private void validateConfirmationCode(
-      RegisterConfirmation confirmation, RegisterConfirmationDto dto)
-      throws InvalidRegistrationCodeException, ExpiredRegistrationCodeException {
+  private void validateConfirmationCode(RegisterConfirmation confirmation, RegisterConfirmationDto dto)
+          throws InvalidRegistrationCodeException, ExpiredRegistrationCodeException {
     if (!confirmation.getCode().equals(dto.getCode())) {
       throw new InvalidRegistrationCodeException("Invalid confirmation code.");
     }
@@ -61,14 +55,13 @@ public class RegisterConfirmationServiceImpl implements RegisterConfirmationServ
 
   @Override
   public void resendConfirmationCode(EmailDto emailDto)
-      throws NotFoundException, MessagingException {
-    RegisterConfirmation found =
-        registerConfirmationCrudService.findByUsername(emailDto.getUsername());
-    RegisterConfirmation updated = updateExpiryDate(found);
-    emailService.resendConfirmationCode(updated.getUsername(), updated.getCode());
+          throws NotFoundException, MessagingException {
+    RegisterConfirmation registerConfirmation = registerConfirmationCrudService.findByUsername(emailDto.getUsername());
+    RegisterConfirmation refreshedConfirmation = refreshExpiryDate(registerConfirmation);
+    emailService.resendConfirmationCode(refreshedConfirmation.getUsername(), refreshedConfirmation.getCode());
   }
 
-  private RegisterConfirmation updateExpiryDate(RegisterConfirmation confirmation) {
+  private RegisterConfirmation refreshExpiryDate(RegisterConfirmation confirmation) {
     confirmation.setExpiryDate(LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
     return registerConfirmationCrudService.save(confirmation);
   }

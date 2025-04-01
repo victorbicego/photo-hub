@@ -8,13 +8,13 @@ import com.event_manager.photo_hub.models.dtos.UpdateHostDto;
 
 public interface HostService {
 
-  HostDto getInfo() throws InvalidJwtTokenException, NotFoundException;
+    HostDto get() throws InvalidJwtTokenException, NotFoundException;
 
-  HostDto update(UpdateHostDto updateConsumerDto)
-      throws InvalidJwtTokenException, NotFoundException;
+    HostDto update(UpdateHostDto updateConsumerDto)
+            throws InvalidJwtTokenException, NotFoundException;
 
-  HostDto updatePassword(PasswordDto updatePasswordDto)
-      throws InvalidJwtTokenException, NotFoundException;
+    HostDto updatePassword(PasswordDto updatePasswordDto)
+            throws InvalidJwtTokenException, NotFoundException;
 
-  void delete() throws InvalidJwtTokenException, NotFoundException;
+    void delete() throws InvalidJwtTokenException, NotFoundException;
 }

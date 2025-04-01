@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PasswordDto {
 
-  @NotNull
-  @Size(min = 8)
-  private String password;
+    @NotNull
+    @Size(min = 8)
+    private String password;
 }

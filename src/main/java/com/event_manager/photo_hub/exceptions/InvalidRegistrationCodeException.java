@@ -1,8 +1,8 @@
 package com.event_manager.photo_hub.exceptions;
 
-public class InvalidRegistrationCodeException extends Exception {
+public class InvalidRegistrationCodeException extends RuntimeException {
 
-  public InvalidRegistrationCodeException(String message) {
-    super(message);
-  }
+    public InvalidRegistrationCodeException(String message) {
+        super(message);
+    }
 }

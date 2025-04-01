@@ -10,11 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FaceBoundingBoxDto {
 
-  @NotNull private Float top;
+    @NotNull
+    private Float top;
 
-  @NotNull private Float left;
+    @NotNull
+    private Float left;
 
-  @NotNull private Float width;
+    @NotNull
+    private Float width;
 
-  @NotNull private Float height;
+    @NotNull
+    private Float height;
 }

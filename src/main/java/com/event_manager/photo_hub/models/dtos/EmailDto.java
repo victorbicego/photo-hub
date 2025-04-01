@@ -11,5 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmailDto {
 
-  @NotNull @Email private String username;
+    @NotNull
+    @Email
+    private String username;
 }

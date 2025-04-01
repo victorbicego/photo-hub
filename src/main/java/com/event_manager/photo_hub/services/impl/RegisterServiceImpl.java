@@ -52,9 +52,8 @@ public class RegisterServiceImpl implements RegisterService {
 
   private RegisterConfirmation createRegisterConfirmation(String username) {
     String code = generateRandomCode(CONFIRMATION_CODE_LENGTH);
-    RegisterConfirmation confirmation =
-        new RegisterConfirmation(
-            null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    RegisterConfirmation confirmation = new RegisterConfirmation(null, username, code,
+            LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
     return registerConfirmationCrudService.save(confirmation);
   }
 }

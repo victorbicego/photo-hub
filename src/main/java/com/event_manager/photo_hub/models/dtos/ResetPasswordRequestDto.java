@@ -12,13 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResetPasswordRequestDto {
 
-  @NotNull @Email private String username;
+    @NotNull
+    @Email
+    private String username;
 
-  @NotNull
-  @Size(min = 8)
-  private String password;
+    @NotNull
+    @Size(min = 8)
+    private String password;
 
-  @NotNull
-  @Size(min = 10, max = 10)
-  private String code;
+    @NotNull
+    @Size(min = 10, max = 10)
+    private String code;
 }

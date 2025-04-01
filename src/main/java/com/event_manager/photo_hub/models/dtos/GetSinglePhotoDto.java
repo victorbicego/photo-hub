@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetSinglePhotoDto {
 
-  @NotNull private byte[] imageBytes;
+    @NotNull
+    private byte[] imageBytes;
 
-  @NotNull private String fileName;
+    @NotNull
+    private String fileName;
 
-  @NotNull private String contentType;
+    @NotNull
+    private String contentType;
 }
