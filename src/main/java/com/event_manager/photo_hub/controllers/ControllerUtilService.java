@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 
 public class ControllerUtilService {
 
+  private static final Long MAX_DAYS = 7L;
+
   private ControllerUtilService() {}
 
   public static <T> ResponseEntity<ApiResponse<T>> buildResponse(
@@ -29,8 +31,9 @@ public class ControllerUtilService {
   }
 
   public static void validateMax7Days(LocalDateTime from, LocalDateTime to) {
-    if (from.plusDays(7).isBefore(to)) {
-      throw new IllegalArgumentException("The date range must not exceed 7 days.");
+    if (from.plusDays(MAX_DAYS).isBefore(to)) {
+      throw new IllegalArgumentException(
+          String.format("The date range must not exceed %d days.", MAX_DAYS));
     }
   }
 }

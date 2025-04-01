@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -86,6 +87,11 @@ public class EventServiceImpl implements EventService {
   public EventDto update(Long id, UpdateEventDto updateEventDto) {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    if (foundEvent.getStartDate().isBefore(LocalDateTime.now())) {
+      throw new BadRequestException("Event has already started. Cannot update.");
+    }
+
     foundEvent.setName(updateEventDto.getName());
     foundEvent.setStartDate(updateEventDto.getStartDate());
     foundEvent.setEndDate(updateEventDto.getEndDate());
@@ -115,15 +121,28 @@ public class EventServiceImpl implements EventService {
   @Override
   public PhotoDto uploadPhoto(MultipartFile file) throws IOException, ImageProcessingException {
     Event foundEvent = authenticationHelper.getActiveEvent();
+
+    long timeBeforeToUpload = 30L;
+    if (foundEvent.getStartDate().isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
+      throw new BadRequestException("Event has not started yet. Cannot upload photos.");
+    }
+
     Photo photo = createPhoto(foundEvent, file);
     Photo savedPhoto = photoCrudService.savePhoto(photo);
     return photoMapper.toDto(savedPhoto);
   }
 
   @Override
-  public PhotoDto uploadPhoto(Long id, MultipartFile file) throws IOException, ImageProcessingException {
+  public PhotoDto uploadPhoto(Long id, MultipartFile file)
+      throws IOException, ImageProcessingException {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    long timeBeforeToUpload = 60L;
+    if (foundEvent.getStartDate().isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
+      throw new BadRequestException("Event has not started yet. Cannot upload photos.");
+    }
+
     Photo photo = createPhoto(foundEvent, file);
     Photo savedPhoto = photoCrudService.savePhoto(photo);
     return photoMapper.toDto(savedPhoto);
@@ -222,7 +241,8 @@ public class EventServiceImpl implements EventService {
     photosToDelete.forEach(photo -> deleteSinglePhoto(photo, foundEvent));
   }
 
-  private Photo createPhoto(Event foundEvent, MultipartFile file) throws IOException, ImageProcessingException {
+  private Photo createPhoto(Event foundEvent, MultipartFile file)
+      throws IOException, ImageProcessingException {
     String normalizedEventName = normalizeFolderName(foundEvent.getName());
     String photoUrl = storageService.uploadFile(file, normalizedEventName);
     String contentType = file.getContentType();
