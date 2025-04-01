@@ -1,7 +1,6 @@
 package com.event_manager.photo_hub.controllers.privates;
 
-import static com.event_manager.photo_hub.controllers.ControllerUtilService.buildResponse;
-import static com.event_manager.photo_hub.controllers.ControllerUtilService.validateDateRange;
+import static com.event_manager.photo_hub.controllers.ControllerUtilService.*;
 
 import com.drew.imaging.ImageProcessingException;
 import com.event_manager.photo_hub.models.ApiResponse;
@@ -68,6 +67,8 @@ public class HostEventController {
       @RequestBody @Valid CreateEventDto createEventDto) {
     EventDto eventDto = eventService.create(createEventDto);
     validateDateRange(createEventDto.getStartDate(), createEventDto.getEndDate());
+    validateFromDateInFuture(createEventDto.getStartDate());
+    validateMax7Days(createEventDto.getStartDate(), createEventDto.getEndDate());
     return buildResponse(HttpStatus.CREATED, eventDto, "Event created successfully.");
   }
 
@@ -75,6 +76,8 @@ public class HostEventController {
   public ResponseEntity<ApiResponse<EventDto>> updateEvent(
       @PathVariable @Positive Long id, @RequestBody @Valid UpdateEventDto updateEventDto) {
     validateDateRange(updateEventDto.getStartDate(), updateEventDto.getEndDate());
+    validateFromDateInFuture(updateEventDto.getStartDate());
+    validateMax7Days(updateEventDto.getStartDate(), updateEventDto.getEndDate());
     EventDto eventDto = eventService.update(id, updateEventDto);
     return buildResponse(HttpStatus.OK, eventDto, "Event updated successfully.");
   }

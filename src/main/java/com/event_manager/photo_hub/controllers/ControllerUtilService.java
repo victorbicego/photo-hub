@@ -21,4 +21,16 @@ public class ControllerUtilService {
           "The 'from' date must be earlier than or equal to the 'to' date.");
     }
   }
+
+  public static void validateFromDateInFuture(LocalDateTime from) {
+    if (from.isBefore(LocalDateTime.now())) {
+      throw new IllegalArgumentException("The 'from' date must be in the future.");
+    }
+  }
+
+  public static void validateMax7Days(LocalDateTime from, LocalDateTime to) {
+    if (from.plusDays(7).isBefore(to)) {
+      throw new IllegalArgumentException("The date range must not exceed 7 days.");
+    }
+  }
 }
