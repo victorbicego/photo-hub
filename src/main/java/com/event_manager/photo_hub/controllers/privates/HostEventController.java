@@ -87,7 +87,11 @@ public class HostEventController {
     return buildResponse(HttpStatus.OK, eventDto, "Event updated successfully.");
   }
 
-  // Todo: Add delete event method ?
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ApiResponse<Void>> deleteEventById(@PathVariable @Positive Long id) {
+    eventService.delete(id);
+    return buildResponse(HttpStatus.OK, null, "Event deleted successfully.");
+  }
 
   @GetMapping("/{id}/photos")
   public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotos(@PathVariable @Positive Long id) {

@@ -1,14 +1,16 @@
 package com.event_manager.photo_hub.services_crud.impl;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.event_manager.photo_hub.exceptions.NotFoundException;
 import com.event_manager.photo_hub.models.entities.Event;
 import com.event_manager.photo_hub.models.entities.Host;
 import com.event_manager.photo_hub.repositories.EventRepository;
 import com.event_manager.photo_hub.services_crud.EventCrudService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +43,13 @@ public class EventCrudServiceImpl implements EventCrudService {
         .findByIdAndHost(id, host)
         .orElseThrow(
             () -> new NotFoundException(String.format("No Event found with id: '%s'.", id)));
+  }
+
+  @Override
+  public void delete(Long id) {
+    if (!eventRepository.existsById(id)) {
+      throw new NotFoundException(String.format("No event found with id: '%d'.", id));
+    }
+    eventRepository.deleteById(id);
   }
 }

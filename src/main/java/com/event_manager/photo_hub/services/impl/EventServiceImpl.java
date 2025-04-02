@@ -111,6 +111,18 @@ public class EventServiceImpl implements EventService {
   }
 
   @Override
+  public void delete(Long id) {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    if (foundEvent.getStartDate().isBefore(LocalDateTime.now())) {
+      throw new BadRequestException("Event has already started. Cannot delete.");
+    }
+
+    eventCrudService.delete(foundEvent.getId());
+  }
+
+  @Override
   public EventDto getActiveEvent() {
     Event activeEvent = authenticationHelper.getActiveEvent();
     return eventMapper.toDto(activeEvent);

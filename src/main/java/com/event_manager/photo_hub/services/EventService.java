@@ -26,6 +26,8 @@ public interface EventService {
 
   EventDto update(Long id, UpdateEventDto updateEventDto);
 
+  void delete(Long id);
+
   EventDto getActiveEvent();
 
   List<PhotoDto> getPhotosByActiveEvent();
