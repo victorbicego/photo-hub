@@ -4,22 +4,8 @@ import static com.event_manager.photo_hub.services.utils.DateUtil.validateDateRa
 import static com.event_manager.photo_hub.services.utils.MetadataUtil.extractPhotoTakenDate;
 import static com.event_manager.photo_hub.services.utils.QrCodeGeneratorUtil.generateQrCode;
 import static com.event_manager.photo_hub.services.utils.StringUtil.normalizeFolderName;
+import lombok.RequiredArgsConstructor;
 
-import com.drew.imaging.ImageProcessingException;
-import com.event_manager.photo_hub.exceptions.BadRequestException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
-import com.event_manager.photo_hub.models.dtos.*;
-import com.event_manager.photo_hub.models.entities.Event;
-import com.event_manager.photo_hub.models.entities.Host;
-import com.event_manager.photo_hub.models.entities.Photo;
-import com.event_manager.photo_hub.models.mappers.EventMapper;
-import com.event_manager.photo_hub.models.mappers.PhotoMapper;
-import com.event_manager.photo_hub.services.EventService;
-import com.event_manager.photo_hub.services.PhotoMatchingService;
-import com.event_manager.photo_hub.services.StorageService;
-import com.event_manager.photo_hub.services.helpers.AuthenticationHelper;
-import com.event_manager.photo_hub.services_crud.EventCrudService;
-import com.event_manager.photo_hub.services_crud.PhotoCrudService;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,13 +19,38 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.drew.imaging.ImageProcessingException;
+import com.event_manager.photo_hub.exceptions.BadRequestException;
+import com.event_manager.photo_hub.exceptions.NotFoundException;
+import com.event_manager.photo_hub.models.dtos.CreateEventDto;
+import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
+import com.event_manager.photo_hub.models.dtos.EventDto;
+import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
+import com.event_manager.photo_hub.models.dtos.MatchedPhotoDto;
+import com.event_manager.photo_hub.models.dtos.MatchedPhotosResponse;
+import com.event_manager.photo_hub.models.dtos.PhotoDto;
+import com.event_manager.photo_hub.models.dtos.PhotoListDto;
+import com.event_manager.photo_hub.models.dtos.PhotoRecognitionDto;
+import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
+import com.event_manager.photo_hub.models.entities.Event;
+import com.event_manager.photo_hub.models.entities.Host;
+import com.event_manager.photo_hub.models.entities.Photo;
+import com.event_manager.photo_hub.models.mappers.EventMapper;
+import com.event_manager.photo_hub.models.mappers.PhotoMapper;
+import com.event_manager.photo_hub.services.EventService;
+import com.event_manager.photo_hub.services.PhotoMatchingService;
+import com.event_manager.photo_hub.services.StorageService;
+import com.event_manager.photo_hub.services.helpers.AuthenticationHelper;
+import com.event_manager.photo_hub.services_crud.EventCrudService;
+import com.event_manager.photo_hub.services_crud.PhotoCrudService;
 
 @Service
 @RequiredArgsConstructor
@@ -119,15 +130,19 @@ public class EventServiceImpl implements EventService {
   }
 
   @Override
-  public PhotoDto uploadPhoto(MultipartFile file) throws IOException, ImageProcessingException {
+  public PhotoDto uploadPhoto(MultipartFile file, String clientIp) throws IOException, ImageProcessingException {
     Event foundEvent = authenticationHelper.getActiveEvent();
 
-    long timeBeforeToUpload = 30L;
-    if (foundEvent.getStartDate().isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
-      throw new BadRequestException("Event has not started yet. Cannot upload photos.");
+    if (foundEvent.getBlockedUsers().contains(clientIp)) {
+      throw new BadRequestException("User is blocked. Cannot upload.");
     }
 
-    Photo photo = createPhoto(foundEvent, file);
+    LocalDateTime photoTakenDate = extractPhotoTakenDate(file);
+
+    long timeBeforeToUpload = 30L;
+    validatePhoto(foundEvent.getStartDate(), timeBeforeToUpload, photoTakenDate);
+
+    Photo photo = createPhoto(foundEvent, file, photoTakenDate, clientIp);
     Photo savedPhoto = photoCrudService.savePhoto(photo);
     return photoMapper.toDto(savedPhoto);
   }
@@ -138,14 +153,28 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
+    if (foundEvent.getBlockedUsers().contains(authenticatedHost.getUsername())) {
+      throw new BadRequestException("User is blocked. Cannot upload.");
+    }
+
+    LocalDateTime photoTakenDate = extractPhotoTakenDate(file);
+
     long timeBeforeToUpload = 60L;
-    if (foundEvent.getStartDate().isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
+    validatePhoto(foundEvent.getStartDate(), timeBeforeToUpload, photoTakenDate);
+
+    Photo photo = createPhoto(foundEvent, file, photoTakenDate, authenticatedHost.getUsername());
+    Photo savedPhoto = photoCrudService.savePhoto(photo);
+    return photoMapper.toDto(savedPhoto);
+  }
+
+  private void validatePhoto(LocalDateTime startDate, Long timeBeforeToUpload, LocalDateTime photoTakenDate) {
+    if (startDate.isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
       throw new BadRequestException("Event has not started yet. Cannot upload photos.");
     }
 
-    Photo photo = createPhoto(foundEvent, file);
-    Photo savedPhoto = photoCrudService.savePhoto(photo);
-    return photoMapper.toDto(savedPhoto);
+    if (photoTakenDate.isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
+      throw new BadRequestException("Photo was taken before the event started.");
+    }
   }
 
   @Override
@@ -193,7 +222,7 @@ public class EventServiceImpl implements EventService {
 
   @Override
   public GetSinglePhotoDto getHostEventPhotoByUrl(String url) {
-    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    authenticationHelper.getAuthenticatedHost();
     Photo foundPhoto = photoCrudService.findByUrl(url);
     GetSinglePhotoDto dto = new GetSinglePhotoDto();
     Path photoPath = Paths.get(foundPhoto.getPhotoUrl());
@@ -241,8 +270,30 @@ public class EventServiceImpl implements EventService {
     photosToDelete.forEach(photo -> deleteSinglePhoto(photo, foundEvent));
   }
 
-  private Photo createPhoto(Event foundEvent, MultipartFile file)
-      throws IOException, ImageProcessingException {
+  @Override
+  public void blockIp(Long id, PhotoListDto photoListDto) {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    List<String> usersToBlock =
+            foundEvent.getPhotos().stream()
+                    .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
+                    .map(Photo::getUploadedBy)
+                    .toList();
+
+    if (usersToBlock.contains(authenticatedHost.getUsername())) {
+      throw new BadRequestException("You cannot block yourself.");
+    }
+
+    for (String user : usersToBlock) {
+      foundEvent.getBlockedUsers().add(user);
+    }
+
+    eventCrudService.save(foundEvent);
+  }
+
+  private Photo createPhoto(Event foundEvent, MultipartFile file, LocalDateTime photoTakenDate, String photoOwner)
+          throws IOException {
     String normalizedEventName = normalizeFolderName(foundEvent.getName());
     String photoUrl = storageService.uploadFile(file, normalizedEventName);
     String contentType = file.getContentType();
@@ -250,9 +301,11 @@ public class EventServiceImpl implements EventService {
       throw new BadRequestException("Invalid file format. Only image files are allowed.");
     Photo photo = new Photo();
     photo.setPhotoUrl(photoUrl);
-    photo.setUploadDate(extractPhotoTakenDate(file));
+    photo.setUploadDate(photoTakenDate);
     photo.setEvent(foundEvent);
     photo.setContentType(contentType);
+    photo.setDescription(foundEvent.getName() + " - " + photo.getUploadDate());
+    photo.setUploadedBy(photoOwner);
     return photo;
   }
 
