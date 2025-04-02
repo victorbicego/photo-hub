@@ -2,10 +2,11 @@ package com.event_manager.photo_hub.models.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -23,4 +24,7 @@ public class EventDto {
   @NotNull private LocalDateTime endDate;
 
   @NotNull private String qrCode;
+
+  @NotNull
+  private String qrCodeData;
 }

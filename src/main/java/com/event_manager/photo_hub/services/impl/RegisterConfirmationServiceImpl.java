@@ -1,5 +1,15 @@
 package com.event_manager.photo_hub.services.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import lombok.RequiredArgsConstructor;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import com.event_manager.photo_hub.exceptions.ExpiredRegistrationCodeException;
 import com.event_manager.photo_hub.exceptions.InvalidRegistrationCodeException;
 import com.event_manager.photo_hub.models.dtos.EmailDto;
@@ -12,12 +22,6 @@ import com.event_manager.photo_hub.services.RegisterConfirmationService;
 import com.event_manager.photo_hub.services.UserService;
 import com.event_manager.photo_hub.services.utils.RoleUtil;
 import com.event_manager.photo_hub.services_crud.RegisterConfirmationCrudService;
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
-import java.time.LocalDateTime;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +51,9 @@ public class RegisterConfirmationServiceImpl implements RegisterConfirmationServ
     if (!registerConfirmation.getCode().equals(registerConfirmationDto.getCode())) {
       throw new InvalidRegistrationCodeException("Invalid confirmation code.");
     }
-    if (LocalDateTime.now().isAfter(registerConfirmation.getExpiryDate())) {
+
+    if (ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime().isAfter(registerConfirmation.getExpiryDate())) {
       throw new ExpiredRegistrationCodeException("Confirmation code has expired.");
     }
   }
@@ -62,7 +68,8 @@ public class RegisterConfirmationServiceImpl implements RegisterConfirmationServ
   }
 
   private RegisterConfirmation refreshExpiryDate(RegisterConfirmation confirmation) {
-    confirmation.setExpiryDate(LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    confirmation.setExpiryDate(ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime().plusMinutes(CODE_EXPIRY_MINUTES));
     return registerConfirmationCrudService.save(confirmation);
   }
 }

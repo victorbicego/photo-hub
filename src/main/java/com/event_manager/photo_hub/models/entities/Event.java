@@ -58,6 +58,10 @@ public class Event extends Auditable {
   @Column(nullable = false, unique = true, length = 1028)
   private String qrCode;
 
+  @NotNull
+  @Column(nullable = false, unique = true)
+  private String qrCodeData;
+
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Photo> photos;
 

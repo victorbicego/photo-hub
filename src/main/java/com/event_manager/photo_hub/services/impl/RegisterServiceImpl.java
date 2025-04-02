@@ -1,6 +1,15 @@
 package com.event_manager.photo_hub.services.impl;
 
 import static com.event_manager.photo_hub.services.utils.CodeGeneratorUtil.generateRandomCode;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.event_manager.photo_hub.models.dtos.CreateHostDto;
 import com.event_manager.photo_hub.models.dtos.HostDto;
@@ -11,11 +20,6 @@ import com.event_manager.photo_hub.services.EmailService;
 import com.event_manager.photo_hub.services.RegisterService;
 import com.event_manager.photo_hub.services_crud.HostCrudService;
 import com.event_manager.photo_hub.services_crud.RegisterConfirmationCrudService;
-import jakarta.mail.MessagingException;
-import java.time.LocalDateTime;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +56,12 @@ public class RegisterServiceImpl implements RegisterService {
 
   private RegisterConfirmation createRegisterConfirmation(String username) {
     String code = generateRandomCode(CONFIRMATION_CODE_LENGTH);
+    LocalDateTime expiry = ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime()
+            .plusMinutes(CODE_EXPIRY_MINUTES);
     RegisterConfirmation registerConfirmation =
         new RegisterConfirmation(
-            null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+                null, username, code, expiry);
     return registerConfirmationCrudService.save(registerConfirmation);
   }
 }

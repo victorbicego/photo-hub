@@ -1,9 +1,13 @@
 package com.event_manager.photo_hub.controllers;
 
-import com.event_manager.photo_hub.models.ApiResponse;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.event_manager.photo_hub.models.ApiResponse;
 
 public class ControllerUtilService {
 
@@ -25,7 +29,8 @@ public class ControllerUtilService {
   }
 
   public static void validateFromDateInFuture(LocalDateTime from) {
-    if (from.isBefore(LocalDateTime.now())) {
+    if (from.isBefore(ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime())) {
       throw new IllegalArgumentException("The 'from' date must be in the future.");
     }
   }

@@ -1,6 +1,15 @@
 package com.event_manager.photo_hub.services.impl;
 
 import static com.event_manager.photo_hub.services.utils.CodeGeneratorUtil.generateRandomCode;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import com.event_manager.photo_hub.exceptions.ExpiredRegistrationCodeException;
 import com.event_manager.photo_hub.models.dtos.EmailDto;
@@ -10,12 +19,6 @@ import com.event_manager.photo_hub.services.EmailService;
 import com.event_manager.photo_hub.services.ResetPasswordRequestService;
 import com.event_manager.photo_hub.services.UserService;
 import com.event_manager.photo_hub.services_crud.ResetPasswordRequestCrudService;
-import jakarta.mail.MessagingException;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +51,8 @@ public class ResetPasswordRequestServiceImpl implements ResetPasswordRequestServ
 
   private ResetPasswordRequest updateResetPasswordRequestExpiryDate(
       ResetPasswordRequest resetPasswordRequest) {
-    resetPasswordRequest.setExpiryDate(LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+    resetPasswordRequest.setExpiryDate(ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime().plusMinutes(CODE_EXPIRY_MINUTES));
     return resetPasswordRequestCrudService.save(resetPasswordRequest);
   }
 
@@ -56,7 +60,8 @@ public class ResetPasswordRequestServiceImpl implements ResetPasswordRequestServ
     String code = generateRandomCode(RESET_CODE_LENGTH);
     ResetPasswordRequest resetPasswordRequest =
         new ResetPasswordRequest(
-            null, username, code, LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES));
+                null, username, code, ZonedDateTime.now(ZoneId.systemDefault())
+                .toLocalDateTime().plusMinutes(CODE_EXPIRY_MINUTES));
     return resetPasswordRequestCrudService.save(resetPasswordRequest);
   }
 
@@ -72,7 +77,8 @@ public class ResetPasswordRequestServiceImpl implements ResetPasswordRequestServ
   }
 
   private void validateResetPasswordRequestExpiry(ResetPasswordRequest resetPasswordRequest) {
-    if (LocalDateTime.now().isAfter(resetPasswordRequest.getExpiryDate())) {
+    if (ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime().isAfter(resetPasswordRequest.getExpiryDate())) {
       throw new ExpiredRegistrationCodeException("Reset password code has expired.");
     }
   }

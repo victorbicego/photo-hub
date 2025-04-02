@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -88,7 +90,8 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event event = eventMapper.toEntity(createEventDto);
     event.setHost(authenticatedHost);
-    String uniqueData = event.getId() + "_" + System.currentTimeMillis();
+    String uniqueData = event.getName() + "_" + System.currentTimeMillis();
+    event.setQrCodeData(uniqueData);
     event.setQrCode(generateQrCode(uniqueData));
     Event savedEvent = eventCrudService.save(event);
     return eventMapper.toDto(savedEvent);
@@ -99,7 +102,8 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
-    if (foundEvent.getStartDate().isBefore(LocalDateTime.now())) {
+    if (foundEvent.getStartDate().isBefore(ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime())) {
       throw new BadRequestException("Event has already started. Cannot update.");
     }
 
@@ -115,7 +119,8 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
-    if (foundEvent.getStartDate().isBefore(LocalDateTime.now())) {
+    if (foundEvent.getStartDate().isBefore(ZonedDateTime.now(ZoneId.systemDefault())
+            .toLocalDateTime())) {
       throw new BadRequestException("Event has already started. Cannot delete.");
     }
 
@@ -180,13 +185,15 @@ public class EventServiceImpl implements EventService {
   }
 
   private void validatePhoto(LocalDateTime startDate, Long timeBeforeToUpload, LocalDateTime photoTakenDate) {
-    if (startDate.isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
-      throw new BadRequestException("Event has not started yet. Cannot upload photos.");
-    }
-
-    if (photoTakenDate.isAfter(LocalDateTime.now().minusMinutes(timeBeforeToUpload))) {
-      throw new BadRequestException("Photo was taken before the event started.");
-    }
+    //if (startDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
+    //        .toLocalDateTime().minusMinutes(timeBeforeToUpload))) {
+    //  throw new BadRequestException("Event has not started yet. Cannot upload photos.");
+    //}
+//
+    //if (photoTakenDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
+    //        .toLocalDateTime().minusMinutes(timeBeforeToUpload))) {
+    //  throw new BadRequestException("Photo was taken before the event started.");
+    //}
   }
 
   @Override
