@@ -99,7 +99,7 @@ public class HostEventController {
     return buildResponse(HttpStatus.OK, photoDtoList, "Photos retrieved successfully.");
   }
 
-  @GetMapping("/photo")
+  @GetMapping("/photos/single")
   public ResponseEntity<ByteArrayResource> getPhotoByUrl(@RequestParam("url") String url) {
 
     GetSinglePhotoDto getSinglePhoto = eventService.getHostEventPhotoByUrl(url);
@@ -132,7 +132,7 @@ public class HostEventController {
         .body(downloadPhotos.getResource());
   }
 
-  @PostMapping("/{id}/photo")
+  @PostMapping("/{id}/photos")
   public ResponseEntity<ApiResponse<PhotoDto>> uploadPhoto(
       @PathVariable @Positive Long id, @RequestParam("file") MultipartFile file)
       throws IOException, ImageProcessingException {
