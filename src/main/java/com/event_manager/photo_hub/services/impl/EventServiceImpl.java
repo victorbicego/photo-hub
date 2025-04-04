@@ -90,7 +90,7 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event event = eventMapper.toEntity(createEventDto);
     event.setHost(authenticatedHost);
-    String uniqueData = event.getName() + "_" + System.currentTimeMillis();
+    String uniqueData = event.getName().trim() + "_" + System.currentTimeMillis();
     event.setQrCodeData(uniqueData);
     event.setQrCode(generateQrCode(uniqueData));
     Event savedEvent = eventCrudService.save(event);
