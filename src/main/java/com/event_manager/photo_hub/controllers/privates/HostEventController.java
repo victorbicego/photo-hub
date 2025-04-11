@@ -4,14 +4,17 @@ import static com.event_manager.photo_hub.controllers.ControllerUtilService.buil
 import static com.event_manager.photo_hub.controllers.ControllerUtilService.validateDateRange;
 import static com.event_manager.photo_hub.controllers.ControllerUtilService.validateFromDateInFuture;
 import static com.event_manager.photo_hub.controllers.ControllerUtilService.validateMax7Days;
+
+import com.drew.imaging.ImageProcessingException;
+import com.event_manager.photo_hub.models.ApiResponse;
+import com.event_manager.photo_hub.models.dtos.*;
+import com.event_manager.photo_hub.services.EventService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -29,17 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.drew.imaging.ImageProcessingException;
-import com.event_manager.photo_hub.models.ApiResponse;
-import com.event_manager.photo_hub.models.dtos.CreateEventDto;
-import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
-import com.event_manager.photo_hub.models.dtos.EventDto;
-import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
-import com.event_manager.photo_hub.models.dtos.PhotoDto;
-import com.event_manager.photo_hub.models.dtos.PhotoListDto;
-import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
-import com.event_manager.photo_hub.services.EventService;
 
 @RestController
 @RequestMapping("/api/v1/host/event")
@@ -148,8 +140,22 @@ public class HostEventController {
   }
 
   @PostMapping("/{id}/block")
-  public ResponseEntity<ApiResponse<Void>> blockUser(@PathVariable @Positive Long id, @RequestBody @Valid PhotoListDto photoListDto) {
+  public ResponseEntity<ApiResponse<Void>> blockUser(
+      @PathVariable @Positive Long id, @RequestBody @Valid PhotoListDto photoListDto) {
     eventService.blockIp(id, photoListDto);
     return buildResponse(HttpStatus.OK, null, "IP blocked successfully.");
+  }
+
+  @PostMapping("/{id}/cohosts")
+  public ResponseEntity<ApiResponse<EventDto>> addCoHosts(
+      @PathVariable @Positive Long id, @RequestBody @Valid CoHostListDto coHostListDto) {
+    EventDto eventDto = eventService.addCoHosts(id, coHostListDto);
+    return buildResponse(HttpStatus.OK, eventDto, "CoHosts added successfully.");
+  }
+
+  @GetMapping("/cohosts")
+  public ResponseEntity<ApiResponse<HostDto>> getCoHosts(@RequestParam("username") String username) {
+    HostDto hostDto = eventService.getHostByUsername(username);
+    return buildResponse(HttpStatus.OK, hostDto, "CoHosts retrieved successfully.");
   }
 }

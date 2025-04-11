@@ -4,8 +4,24 @@ import static com.event_manager.photo_hub.services.utils.DateUtil.validateDateRa
 import static com.event_manager.photo_hub.services.utils.MetadataUtil.extractPhotoTakenDate;
 import static com.event_manager.photo_hub.services.utils.QrCodeGeneratorUtil.generateQrCode;
 import static com.event_manager.photo_hub.services.utils.StringUtil.normalizeFolderName;
-import lombok.RequiredArgsConstructor;
 
+import com.drew.imaging.ImageProcessingException;
+import com.event_manager.photo_hub.exceptions.BadRequestException;
+import com.event_manager.photo_hub.exceptions.NotFoundException;
+import com.event_manager.photo_hub.models.dtos.*;
+import com.event_manager.photo_hub.models.entities.Event;
+import com.event_manager.photo_hub.models.entities.Host;
+import com.event_manager.photo_hub.models.entities.Photo;
+import com.event_manager.photo_hub.models.mappers.EventMapper;
+import com.event_manager.photo_hub.models.mappers.HostMapper;
+import com.event_manager.photo_hub.models.mappers.PhotoMapper;
+import com.event_manager.photo_hub.services.EventService;
+import com.event_manager.photo_hub.services.PhotoMatchingService;
+import com.event_manager.photo_hub.services.StorageService;
+import com.event_manager.photo_hub.services.helpers.AuthenticationHelper;
+import com.event_manager.photo_hub.services_crud.EventCrudService;
+import com.event_manager.photo_hub.services_crud.HostCrudService;
+import com.event_manager.photo_hub.services_crud.PhotoCrudService;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,38 +37,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.drew.imaging.ImageProcessingException;
-import com.event_manager.photo_hub.exceptions.BadRequestException;
-import com.event_manager.photo_hub.exceptions.NotFoundException;
-import com.event_manager.photo_hub.models.dtos.CreateEventDto;
-import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
-import com.event_manager.photo_hub.models.dtos.EventDto;
-import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
-import com.event_manager.photo_hub.models.dtos.MatchedPhotoDto;
-import com.event_manager.photo_hub.models.dtos.MatchedPhotosResponse;
-import com.event_manager.photo_hub.models.dtos.PhotoDto;
-import com.event_manager.photo_hub.models.dtos.PhotoListDto;
-import com.event_manager.photo_hub.models.dtos.PhotoRecognitionDto;
-import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
-import com.event_manager.photo_hub.models.entities.Event;
-import com.event_manager.photo_hub.models.entities.Host;
-import com.event_manager.photo_hub.models.entities.Photo;
-import com.event_manager.photo_hub.models.mappers.EventMapper;
-import com.event_manager.photo_hub.models.mappers.PhotoMapper;
-import com.event_manager.photo_hub.services.EventService;
-import com.event_manager.photo_hub.services.PhotoMatchingService;
-import com.event_manager.photo_hub.services.StorageService;
-import com.event_manager.photo_hub.services.helpers.AuthenticationHelper;
-import com.event_manager.photo_hub.services_crud.EventCrudService;
-import com.event_manager.photo_hub.services_crud.PhotoCrudService;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +56,8 @@ public class EventServiceImpl implements EventService {
   private final StorageService storageService;
   private final PhotoCrudService photoCrudService;
   private final PhotoMatchingService photoMatchingService;
+  private final HostCrudService hostCrudService;
+  private final HostMapper hostMapper;
 
   @Override
   public List<EventDto> getAllByFilter(
@@ -102,10 +95,11 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
-    if (foundEvent.getStartDate().isBefore(ZonedDateTime.now(ZoneId.systemDefault())
-            .toLocalDateTime())) {
-      throw new BadRequestException("Event has already started. Cannot update.");
-    }
+    //if (foundEvent
+    //    .getStartDate()
+    //    .isBefore(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime())) {
+    //  throw new BadRequestException("Event has already started. Cannot update.");
+    //}
 
     foundEvent.setName(updateEventDto.getName());
     foundEvent.setStartDate(updateEventDto.getStartDate());
@@ -119,10 +113,11 @@ public class EventServiceImpl implements EventService {
     Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
-    if (foundEvent.getStartDate().isBefore(ZonedDateTime.now(ZoneId.systemDefault())
-            .toLocalDateTime())) {
-      throw new BadRequestException("Event has already started. Cannot delete.");
-    }
+    //if (foundEvent
+    //    .getStartDate()
+    //    .isBefore(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime())) {
+    //  throw new BadRequestException("Event has already started. Cannot delete.");
+    //}
 
     eventCrudService.delete(foundEvent.getId());
   }
@@ -147,7 +142,8 @@ public class EventServiceImpl implements EventService {
   }
 
   @Override
-  public PhotoDto uploadPhoto(MultipartFile file, String clientIp) throws IOException, ImageProcessingException {
+  public PhotoDto uploadPhoto(MultipartFile file, String clientIp)
+      throws IOException, ImageProcessingException {
     Event foundEvent = authenticationHelper.getActiveEvent();
 
     if (foundEvent.getBlockedUsers().contains(clientIp)) {
@@ -184,16 +180,17 @@ public class EventServiceImpl implements EventService {
     return photoMapper.toDto(savedPhoto);
   }
 
-  private void validatePhoto(LocalDateTime startDate, Long timeBeforeToUpload, LocalDateTime photoTakenDate) {
-    //if (startDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
+  private void validatePhoto(
+      LocalDateTime startDate, Long timeBeforeToUpload, LocalDateTime photoTakenDate) {
+    // if (startDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
     //        .toLocalDateTime().minusMinutes(timeBeforeToUpload))) {
     //  throw new BadRequestException("Event has not started yet. Cannot upload photos.");
-    //}
-//
-    //if (photoTakenDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
+    // }
+    //
+    // if (photoTakenDate.isAfter(ZonedDateTime.now(ZoneId.systemDefault())
     //        .toLocalDateTime().minusMinutes(timeBeforeToUpload))) {
     //  throw new BadRequestException("Photo was taken before the event started.");
-    //}
+    // }
   }
 
   @Override
@@ -295,10 +292,10 @@ public class EventServiceImpl implements EventService {
     Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
 
     List<String> usersToBlock =
-            foundEvent.getPhotos().stream()
-                    .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
-                    .map(Photo::getUploadedBy)
-                    .toList();
+        foundEvent.getPhotos().stream()
+            .filter(photo -> photoListDto.getIdList().contains(photo.getId()))
+            .map(Photo::getUploadedBy)
+            .toList();
 
     if (usersToBlock.contains(authenticatedHost.getUsername())) {
       throw new BadRequestException("You cannot block yourself.");
@@ -311,8 +308,42 @@ public class EventServiceImpl implements EventService {
     eventCrudService.save(foundEvent);
   }
 
-  private Photo createPhoto(Event foundEvent, MultipartFile file, LocalDateTime photoTakenDate, String photoOwner)
-          throws IOException {
+  @Override
+  public EventDto addCoHosts(Long id, CoHostListDto coHostListDto) {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+
+    if (coHostListDto.getCoHostEmails().contains(authenticatedHost.getUsername())) {
+      throw new BadRequestException("You cannot add yourself as a co-host.");
+    }
+
+    Event foundEvent = eventCrudService.findByIdAndHost(id, authenticatedHost);
+
+    List<Host> coHosts =
+        coHostListDto.getCoHostEmails().stream().map(hostCrudService::findByUsername).toList();
+
+    foundEvent.getCoHosts().clear();
+    foundEvent.getCoHosts().addAll(coHosts);
+
+    Event savedEvent = eventCrudService.save(foundEvent);
+
+    return eventMapper.toDto(savedEvent);
+  }
+
+  @Override
+  public HostDto getHostByUsername(String username) {
+    Host authenticatedHost = authenticationHelper.getAuthenticatedHost();
+
+    if (username.equals(authenticatedHost.getUsername())) {
+      throw new BadRequestException("You cannot get yourself as coHost.");
+    }
+
+    Host foundHost = hostCrudService.findByUsername(username);
+    return hostMapper.toDto(foundHost);
+  }
+
+  private Photo createPhoto(
+      Event foundEvent, MultipartFile file, LocalDateTime photoTakenDate, String photoOwner)
+      throws IOException {
     String normalizedEventName = normalizeFolderName(foundEvent.getName());
     String photoUrl = storageService.uploadFile(file, normalizedEventName);
     String contentType = file.getContentType();

@@ -33,13 +33,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String jwtToken = jwtService.extractTokenFromCookies(request);
 
     if (jwtToken != null) {
-      String username = jwtService.extractUsername(jwtToken);
-      if (username != null && isNotAuthenticated()) {
-        authenticateUser(request, response, jwtToken, username);
+      try {
+        String username = jwtService.extractUsername(jwtToken);
+        if (username != null && isNotAuthenticated()) {
+          authenticateUser(request, response, jwtToken, username);
+        }
+      } catch (Exception ex) {
+        response.addCookie(jwtService.createLogoutCookie());
+
+        if (isProtectedEndpoint(request)) {
+          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication token.");
+          return;
+        }
       }
     }
-
     filterChain.doFilter(request, response);
+  }
+
+  private boolean isProtectedEndpoint(HttpServletRequest request) {
+    String uri = request.getRequestURI();
+    if (uri.startsWith("/api/v1/host/")) {
+      return true;
+    }
+    return false;
   }
 
   private boolean isNotAuthenticated() {

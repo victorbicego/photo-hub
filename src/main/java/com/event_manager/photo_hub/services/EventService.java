@@ -1,19 +1,10 @@
 package com.event_manager.photo_hub.services;
 
+import com.drew.imaging.ImageProcessingException;
+import com.event_manager.photo_hub.models.dtos.*;
 import java.io.IOException;
 import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
-
-import com.drew.imaging.ImageProcessingException;
-import com.event_manager.photo_hub.models.dtos.CreateEventDto;
-import com.event_manager.photo_hub.models.dtos.DownloadPhotosDto;
-import com.event_manager.photo_hub.models.dtos.EventDto;
-import com.event_manager.photo_hub.models.dtos.GetSinglePhotoDto;
-import com.event_manager.photo_hub.models.dtos.PhotoDto;
-import com.event_manager.photo_hub.models.dtos.PhotoListDto;
-import com.event_manager.photo_hub.models.dtos.PhotoRecognitionDto;
-import com.event_manager.photo_hub.models.dtos.UpdateEventDto;
 
 public interface EventService {
 
@@ -36,7 +27,8 @@ public interface EventService {
 
   PhotoDto uploadPhoto(Long id, MultipartFile file) throws IOException, ImageProcessingException;
 
-  PhotoDto uploadPhoto(MultipartFile file, String clientIp) throws IOException, ImageProcessingException;
+  PhotoDto uploadPhoto(MultipartFile file, String clientIp)
+      throws IOException, ImageProcessingException;
 
   List<PhotoRecognitionDto> getMatchedPhotos(MultipartFile file);
 
@@ -51,4 +43,8 @@ public interface EventService {
   void deletePhotos(Long id, PhotoListDto photoListDto);
 
   void blockIp(Long id, PhotoListDto photoListDto);
+
+  EventDto addCoHosts(Long id, CoHostListDto coHostListDto);
+
+  HostDto getHostByUsername(String username);
 }

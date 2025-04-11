@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,4 +28,6 @@ public class EventDto {
 
   @NotNull
   private String qrCodeData;
+
+  private List<HostDto> coHosts;
 }

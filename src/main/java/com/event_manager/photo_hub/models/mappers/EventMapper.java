@@ -12,9 +12,14 @@ import org.springframework.stereotype.Service;
 public class EventMapper {
 
   private final ModelMapper modelMapper;
+  private final HostMapper hostMapper;
 
   public EventDto toDto(Event event) {
-    return modelMapper.map(event, EventDto.class);
+    EventDto eventDto = modelMapper.map(event, EventDto.class);
+    if (event.getCoHosts() != null) {
+      eventDto.setCoHosts(event.getCoHosts().stream().map(hostMapper::toDto).toList());
+    }
+    return eventDto;
   }
 
   public Event toEntity(CreateEventDto createEventDto) {
